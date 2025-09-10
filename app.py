@@ -10,8 +10,7 @@ app = FastAPI(
                 - Convert images to gifs\n
                 - Retrieve data related to images and gifs\n
                 - Download gifs or upload to GIPHY""",
-    version="v2",
-    contact={"name": "Michael"}
+    version="v2"
     )
 
 app.secret_key = '70495749971baffcf6634a5dcd0a782e2d538d7f5b7c1f81b251156319e213597037fd417c608827970a5b3f261e4b2f12923f20b5a2b2902694bfdf26988a97'
