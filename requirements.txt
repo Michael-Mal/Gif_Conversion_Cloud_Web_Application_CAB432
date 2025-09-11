@@ -4,3 +4,4 @@ python-multipart
 pillow
 pyjwt
 requests
+boto3

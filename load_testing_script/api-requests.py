@@ -7,9 +7,10 @@ import requests
 import os
 
 base_url = "http://localhost:3000"
+ver = "/v3"
 
 def login(user: str):
-    url = base_url + '/login/'
+    url = base_url + ver + '/login/'
 
     json = {}
     if(user == "1"):
@@ -46,7 +47,7 @@ def generate_headers(auth_token: str):
 
 
 def upload_images(images, auth_token: str, name: str):
-    url = base_url + '/v2/images/' + name + "/"
+    url = base_url + ver + '/images/' + name + "/"
 
     headers = generate_headers(auth_token)
 
@@ -74,7 +75,7 @@ def upload_load_images(auth_token: str):
         images.append(("images", (image, open(image_path, "rb"))))
     upload_images(images, auth_token=auth_token, name="load_images")
 
-upload_load_images("1")
+#upload_load_images("1")
 
 
 
@@ -82,7 +83,7 @@ upload_load_images("1")
 
 
 def get_all_images(auth_token: str):
-    url = base_url + '/v2/images/'
+    url = base_url + ver + '/images/'
     headers = generate_headers(auth_token)
     data = {"public": False,
             "limit": 1,
@@ -96,7 +97,7 @@ def get_all_images(auth_token: str):
 
 
 def convert_to_gif(auth_token: str, images_name: str, gif_name: str):
-    url = base_url + '/v2/images/' + images_name + '/convert_to_gif/'
+    url = base_url + ver + '/images/' + images_name + '/convert_to_gif/'
 
     data = {"gif_name": gif_name,
             "width": 280,
@@ -110,13 +111,13 @@ def convert_to_gif(auth_token: str, images_name: str, gif_name: str):
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
 #for i in range(100):
-convert_to_gif("1", "michael_load_images", "load_gif")
+#convert_to_gif("1", "michael_load_images", "load_gif")
 convert_to_gif("1", "michael_hummingbird_images", "hummingbird_gif")
 
 
 
 def get_all_gifs(auth_token: str, page: int, sort_descending = bool):
-    url = base_url + '/v2/gifs/'
+    url = base_url + ver + '/gifs/'
     headers = generate_headers(auth_token)
     data = {"public": False,
             "limit": 0,
@@ -127,13 +128,13 @@ def get_all_gifs(auth_token: str, page: int, sort_descending = bool):
     response = requests.get(url, headers=headers, data=data)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-get_all_gifs("1", 1, True)
+#get_all_gifs("1", 1, True)
 #get_all_gifs("1", 1, False)
 
 
 
 def download_gif(auth_token: str):
-    url = base_url + '/v2/gifs/michael_test_gif/download/'
+    url = base_url + ver + '/gifs/michael_test_gif/download/'
 
     headers = generate_headers(auth_token)
 
@@ -146,7 +147,7 @@ def download_gif(auth_token: str):
 
 
 def upload_to_GIPHY(auth_token: str):
-    url = base_url + '/v2/gifs/michael_test_gif/GIPHY/'
+    url = base_url + ver + '/gifs/michael_test_gif/GIPHY/'
 
     headers = generate_headers(auth_token)    
 
