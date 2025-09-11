@@ -26,7 +26,7 @@
 - 'app.py'
 - 'Dockerfile'
 - 'requirements.txt'
-- Everything in /gm_code/
+- Everything in /gma_code/
 #### Commands
 `docker build -t gif-api .`
 
