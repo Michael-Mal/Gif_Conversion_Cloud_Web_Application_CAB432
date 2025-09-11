@@ -1,12 +1,8 @@
-# PLEASE READ
-#
-# For the submission, I decided not to include the images found in subdirectories (which are used to load down the API) to keep file sizes down
-# If you would like to test it yourself, please add your own images into /Load_Images/ or /Hummingbird_Images/
-
 import requests
 import os
 
-base_url = "http://localhost:3000"
+url_name = "localhost"
+base_url = "http://" + url_name + ":3000"
 ver = "/v3"
 
 def login(user: str):
@@ -27,8 +23,9 @@ def login(user: str):
 
     response = requests.post(url, json=json)
 
-    print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
-    return response.text[14:-2]
+    if(response.status_code == 200):
+        print("Login successful " + response.text)
+    return response.text[14:-2] # Returns the auth token
 
 #login()
 
@@ -58,6 +55,7 @@ def upload_images(images, auth_token: str, name: str):
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
 def upload_test_images(auth_token: str):
+    """Uploads the images in /Hummingbird_Images/, which are low-res and easy to test with."""
     images = []
     image_dir = "./Hummingbird_Images/"
     for image in os.listdir(image_dir):
@@ -65,9 +63,10 @@ def upload_test_images(auth_token: str):
         images.append(("images", (image, open(image_path, "rb"))))
     upload_images(images, auth_token=auth_token, name="hummingbird_images")
 
-upload_test_images("1")
+#upload_test_images("1")
 
 def upload_load_images(auth_token: str):
+    """Uploads the images in /Load_Images/, which are high-res and are used to load down the server."""
     images = []
     image_dir = "./Load_Images/"
     for image in os.listdir(image_dir):
@@ -112,7 +111,7 @@ def convert_to_gif(auth_token: str, images_name: str, gif_name: str):
 
 #for i in range(100):
 #convert_to_gif("1", "michael_load_images", "load_gif")
-convert_to_gif("1", "michael_hummingbird_images", "hummingbird_gif")
+#convert_to_gif("1", "michael_hummingbird_images", "hummingbird_gif")
 
 
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-import gm_code.api.v1 as v1
-import gm_code.api.v2 as v2
-import gm_code.api.v3 as v3
-from gm_code.auth import login
+import gma_code.api.v1 as v1
+import gma_code.api.v2 as v2
+import gma_code.api.v3 as v3
+from gma_code.auth import login
 
 # --- Version 1 ---
 v1_router = APIRouter(prefix="/v1")

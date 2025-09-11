@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from gm_code.routes import v1_router, v2_router, v3_router
+from gma_code.routes import v1_router, v2_router, v3_router
 
 app = FastAPI(
     title="GIF Maker API",
