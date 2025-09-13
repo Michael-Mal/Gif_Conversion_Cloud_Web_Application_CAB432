@@ -12,9 +12,22 @@
 - Infrastructure as Code (3 marks)
 
 ## Helpful Info
+### How to login to AWS
+
+1. Download the AWS CLI (already installed on EC2 launch template 'A2_11')
+2. Run `aws configure sso  --use-device-code` with these details:
+```
+SSO session name (Recommended): default
+SSO start URL [None]: https://d-97671c4bd0.awsapps.com/start/#/
+SSO region [None]: ap-southeast-2
+SSO registration scopes [sso:account:access]: sso:account:access
+CLI default client Region [None]: ap-southeast-2
+CLI default output format [None]:
+CLI profile name [CAB432-STUDENT-901444280953]: default
+```
 
 ### How to test the program
-1. Run the main program either in VS Code or EC2
+1. Run the main program either in VS Code or EC2 (AWS login required)
 2. Open `load_testing_script/` in VS Code in a new window
 3. In `api-requests.py`, assign variable `url_name` to the URL (eg. `localhost` if testing locally)
 4. Uncomment the function calls you want to test, and then run the program. Hopefully everything is kind of self-explanatory.
@@ -37,17 +50,7 @@ ctrl + c to exit.
 ### Storing on ECR
 -Should we make a new ECR repo?
 #### Login 
-1. Run `aws configure sso  --use-device-code` with these details:
-```
-SSO session name (Recommended): default
-SSO start URL [None]: https://d-97671c4bd0.awsapps.com/start/#/
-SSO region [None]: ap-southeast-2
-SSO registration scopes [sso:account:access]: sso:account:access
-CLI default client Region [None]: ap-southeast-2
-CLI default output format [None]:
-CLI profile name [CAB432-STUDENT-901444280953]: default
-```
-2. Run `aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 901444280953.dkr.ecr.ap-southeast-2.amazonaws.com`
+Run `aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 901444280953.dkr.ecr.ap-southeast-2.amazonaws.com`
    
 #### Push
 Tag if not already tagged:
