@@ -8,7 +8,8 @@ from gma_code.auth import authenticate_token
 from gma_code.data import *
 import requests
 import shutil
-
+import boto3
+import tempfile
 
 async def upload_images(
     name: str,
@@ -19,50 +20,53 @@ async def upload_images(
     """Upload images to be processed
 
     Args:
-        name (str): The name of the set of images to upload. If private, will be preceded by the username.
+        name (str): The name of the set of images to upload. All images must 
+            be of the same filetype. If private, will be preceded by the username.
         user (str): The authentication token to use.
         images (list[UploadFile]): The image files to upload.
+        images_type (str): The file types of the images.
         public (Optional[bool], optional): Specifies whether the images can be accessed by anyone or just this account. Defaults to False.
 
     Returns:
         list(str): If no exception occured: a success message including the names of the files that have been uploaded
     """
 
-    
     #Add user to name if private
     if not(public):
         name = user['username'] + "_" + name
 
-    
     #Make images directory
-    if not(os.path.exists("uns_data/")):
-        os.mkdir("uns_data/")
-    if not(os.path.exists("uns_data/images/")):
-        os.mkdir("uns_data/images/")
-    path = "./uns_data/images/" + name
-    try:
-        os.makedirs(path, exist_ok=False)
-    except OSError as e:
-        raise HTTPException(status_code=400, detail=f"Name already exists: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid directory: {e}")
+    #if not(os.path.exists("temp/")):
+    #    os.mkdir("temp/")
+    #path = ".temp/"
 
+    # Get the filetype
+    file_type = images[0].filename.split(".")[1]
+
+    s3 = boto3.client('s3')
     response_msg = [name + " has been uploaded successfully"]
 
     for image in images:
 
         #Save images to directory
-        file_path = os.path.join(path, image.filename)
-        try:
-            with open(file_path, "wb") as f:
-                shutil.copyfileobj(image.file, f)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to save {image.filename}: {e}")
+        file_name = name + "_" + str(images.index(image)) + "." + file_type
+        #file_path = os.path.join(path, file_name)
+        #try:
+        #    with open(file_path, "wb") as f:
+        #        shutil.copyfileobj(image.file, f)
+        #except Exception as e:
+        #    raise HTTPException(status_code=500, detail=f"Failed to save {image.filename}: {e}")
         
+        #Upload to S3
+        
+        s3.upload_fileobj(image.file, 'a2-11', file_name)
+
         response_msg.append(image.filename)
 
     #Add to metadata
-    create_images_data(name, user['username'], public)
+    create_images_data(name, user['username'], public, len(images), file_type)
+
+    
 
     return JSONResponse(status_code=201, content=response_msg)
 
@@ -134,9 +138,9 @@ async def delete_images(
     return JSONResponse(content=f"Successfully deleted {name}")
 
 async def convert_to_gif(
-    images_name: str,
+    images_name: str, #TODO: Append the username to this so the user doesn't have to worry about adding it themself
     user = Depends(authenticate_token),
-    gif_name: Optional[str] = Form(""),
+    gif_name: str = Form(...), 
     width: Optional[int] = Form(0),
     height: Optional[int] = Form(0),
     duration: Optional[int] = Form(1000),
@@ -160,13 +164,10 @@ async def convert_to_gif(
     """
  
     #Check if path exists
-    images_path = "uns_data/images/" + images_name
-    
-    
     try:
         read_images_data(images_name)
     except KeyError:
-            raise HTTPException(status_code=400, detail=f"{images_name} does not exist")
+        raise HTTPException(status_code=400, detail=f"{images_name} does not exist")
 
     #Check if user is authorised
     if not(images_authorised(images_name, user['username'])):
@@ -177,18 +178,24 @@ async def convert_to_gif(
         gif_name = user['username'] + "_" + gif_name
     
     #Make gifs directory
+    if not(os.path.exists("uns_data/")):
+        os.mkdir("uns_data/")
     if not(os.path.exists("uns_data/gifs/")):
         os.mkdir("uns_data/gifs/")
     gif_file_path = "uns_data/gifs/" + gif_name + ".gif"
     
     #Make gif
-    image_paths = [images_path + "/" + file_name for file_name in os.listdir(images_path)]
     frames = []
-    for image in image_paths:
-        opened_image = Image.open(image)
-        if not(width == 0) and not(height == 0):
-            opened_image = opened_image.resize(size=(width, height))
-        frames.append(opened_image)
+    s3 = boto3.client('s3')
+    images_data = read_images_data(images_name)
+    for i in range(images_data["number_of_images"]):
+        image = Image.new("1", (1, 1))
+        with tempfile.TemporaryFile(mode="wb+") as downloaded_image:
+            s3.download_fileobj('a2-11', (images_name + "_" + str(i) + "." + images_data["file_type"]), downloaded_image)
+            image = Image.open(downloaded_image)
+            if not(width == 0) and not(height == 0):
+                image = image.resize(size=(width, height))
+            frames.append(image)
     frame_one = frames[0]
     frame_one.save(gif_file_path, format="GIF", append_images=frames, save_all=True, duration=duration, loop=loop)
     

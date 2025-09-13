@@ -13,11 +13,15 @@ def images_authorised(
 def create_images_data(
     name: str,
     username: str,
-    public: bool     
+    public: bool,
+    number_of_images: int,
+    file_type: str
 ):
     images_data[name] = {
             "username": username,
-            "public": public
+            "public": public,
+            "number_of_images": number_of_images,
+            "file_type": file_type
         }
 
 # READ ALL
