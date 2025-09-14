@@ -1,13 +1,44 @@
-images_data = {}
+from fastapi import HTTPException
 
-def images_authorised(
+images_data = {}
+gif_data = {}
+
+def check_exists(
     name: str,
+    data_type: str,
+    desired_outcome: bool = True
+):
+    """Raises a HTTPException if desired outcome is not true"""
+
+    # Gets data based on datatype
+    data = images_data.keys()
+    if (data_type == "gif"):
+        data = gif_data.keys()
+
+    # Check if name in data
+    if(name in data):
+        if (desired_outcome == False):
+            raise HTTPException(status_code=400, detail=f"{name} already exists")
+    else:
+        if (desired_outcome == True):
+            raise HTTPException(status_code=404, detail=f"{name} cannot be found")
+        
+
+def check_authorised(
+    name: str,
+    data_type: str,
     username: str
 ):
-    if (images_data[name]['public']) or (images_data[name]['username'] == username):
-        return True
-    else:
-        return False
+    """Raises a HTTPException if not authorised"""
+
+    # Gets data based on datatype
+    data = images_data[name]
+    if (data_type == "gif"):
+        data = gif_data[name]
+
+    # Check if authorised
+    if not(data['public']) and not(data['username'] == username):
+        raise HTTPException(status_code=403, detail=f"You are unauthorised to interact with {name}")
 
 # CREATE
 def create_images_data(
@@ -26,17 +57,18 @@ def create_images_data(
 
 # READ ALL
 def read_all_images_data(
-    username: str,
-    public: bool,
+    username: str = "",
     limit: int = 0,
     page: int = 1
 ):
     images_list = {}
     for images in images_data.keys():
-        if public:
+        if (username == ""):
+            # Get public images
             if images_data[images]['public'] == True:
                 images_list[images] = images_data[images]
-        elif not public:
+        else:
+            # Get user-made images
             if images_data[images]['username'] == username:
                 images_list[images] = images_data[images]
 
@@ -64,17 +96,6 @@ def delete_images_data(
 ):
     images_data.pop(name)
 
-gif_data = {}
-
-def gif_authorised(
-    name: str,
-    username: str
-):
-    if (gif_data[name]['public']) or (gif_data[name]['username'] == username):
-        return True
-    else:
-        return False
-
 # CREATE
 def create_gif_data(
     gif_name: str,
@@ -99,8 +120,7 @@ def create_gif_data(
 
 # READ ALL
 def read_all_gif_data(
-    username: str,
-    public: bool,
+    username: str = "",
     limit: int = 0,
     page: int = 1,
     filter_by_images: str = "",
@@ -109,10 +129,12 @@ def read_all_gif_data(
 ):
     gifs = {}
     for gif in gif_data.keys():
-        if public:
+        if (username == ""):
+            # Get public images
             if gif_data[gif]['public'] == True:
                 gifs[gif] = gif_data[gif]
-        elif not public:
+        else:
+            # Get user-made images
             if gif_data[gif]['username'] == username:
                 gifs[gif] = gif_data[gif]
 
@@ -144,6 +166,12 @@ def read_gif_data(
 ):
     return gif_data[name]
     # Returns exception if not in gif_data
+
+# UPDATE
+def increment_gif_downloads(
+    name: str
+):
+    gif_data[name]["downloads"] = gif_data[name]["downloads"] + 1
 
 # DELETE
 def delete_gif_data(

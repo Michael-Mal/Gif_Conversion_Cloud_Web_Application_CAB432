@@ -35,40 +35,25 @@ async def upload_images(
     if not(public):
         name = user['username'] + "_" + name
 
-    #Make images directory
-    #if not(os.path.exists("temp/")):
-    #    os.mkdir("temp/")
-    #path = ".temp/"
+    check_exists(name, data_type="images", desired_outcome = False)
 
     # Get the filetype
     file_type = images[0].filename.split(".")[1]
 
+    #Upload to S3
     s3 = boto3.client('s3')
-    response_msg = [name + " has been uploaded successfully"]
-
+    success_msg = [name + " has been uploaded successfully"]
     for image in images:
-
-        #Save images to directory
         file_name = name + "_" + str(images.index(image)) + "." + file_type
-        #file_path = os.path.join(path, file_name)
-        #try:
-        #    with open(file_path, "wb") as f:
-        #        shutil.copyfileobj(image.file, f)
-        #except Exception as e:
-        #    raise HTTPException(status_code=500, detail=f"Failed to save {image.filename}: {e}")
-        
-        #Upload to S3
         
         s3.upload_fileobj(image.file, 'a2-11', file_name)
 
-        response_msg.append(image.filename)
+        success_msg.append(image.filename)
 
     #Add to metadata
     create_images_data(name, user['username'], public, len(images), file_type)
 
-    
-
-    return JSONResponse(status_code=201, content=response_msg)
+    return JSONResponse(status_code=201, content=success_msg)
 
 async def get_all_images_data(
     user = Depends(authenticate_token),
@@ -88,7 +73,11 @@ async def get_all_images_data(
     Returns:
         dict: Metadata related to the images
     """
-    data = read_all_images_data(user['username'], public=public, limit=limit, page=page)
+    username = ""
+    if not(public):
+        # Only get user-made images
+        username = user['username']
+    data = read_all_images_data(username=username, limit=limit, page=page)
     return JSONResponse(content=data)
 
 async def get_images_data(
@@ -102,14 +91,14 @@ async def get_images_data(
         user (str): The authentication token to use.
 
     Raises:
-        HTTPException: If you are unauthorised to read data related to the specified images
+        HTTPException: If you are unauthorised to read data related to the 
+            specified images of images don't exist
 
     Returns:
         dict: Metadata related to the images
     """
-    if not(images_authorised(name, user['username'])):
-        raise HTTPException(status_code=403, detail=f"You are unauthorised to read data related to {name}")
-
+    check_exists(name, data_type="images")
+    check_authorised(name, data_type="images", username=user['username'])
     return JSONResponse(content=read_images_data(name))
 
 async def delete_images(
@@ -128,13 +117,10 @@ async def delete_images(
     Returns:
         str: Success response message
     """
-
-    if not(images_authorised(name, user['username'])):
-        raise HTTPException(status_code=403, detail=f"You are unauthorised to delete {name}")
-
-    shutil.rmtree("uns_data/images/" + name)
+    check_exists(name, data_type="images")
+    check_authorised(name, data_type="images", username=user['username'])
+    #shutil.rmtree("uns_data/images/" + name) #TODO: remove images from S3
     delete_images_data(name)
-
     return JSONResponse(content=f"Successfully deleted {name}")
 
 async def convert_to_gif(
@@ -162,20 +148,14 @@ async def convert_to_gif(
     Returns:
         str: Confirmation message if no exception is raised
     """
- 
-    #Check if path exists
-    try:
-        read_images_data(images_name)
-    except KeyError:
-        raise HTTPException(status_code=400, detail=f"{images_name} does not exist")
-
-    #Check if user is authorised
-    if not(images_authorised(images_name, user['username'])):
-        raise HTTPException(status_code=403, detail=f"You are unauthorised to convert {images_name}")
+    check_exists(images_name, data_type="images")
+    check_authorised(images_name, data_type="images", username=user['username'])
 
     #Add user to name if private
     if not(public):
         gif_name = user['username'] + "_" + gif_name
+
+    check_exists(gif_name, data_type="gif", desired_outcome=False)
     
     #Make gifs directory
     if not(os.path.exists("uns_data/")):
@@ -229,7 +209,11 @@ async def get_all_gif_data(
     Returns:
         dict: Metadata related to the gifs
     """
-    data = read_all_gif_data(user['username'], public=public, limit=limit, page=page, 
+    username = ""
+    if not(public):
+        # Only get user-made images
+        username = user['username']
+    data = read_all_gif_data(username=username, limit=limit, page=page, 
                              filter_by_images=filter_by_images, sort_by_field=sort_by_field,
                              sort_descending=sort_descending)
     return JSONResponse(content=data)
@@ -250,9 +234,8 @@ async def get_gif_data(
     Returns:
         dict: Metadata related to the gif
     """
-    if not(gif_authorised(name, user['username'])):
-        raise HTTPException(status_code=403, detail=f"You are unauthorised to read data related to {name}")
-
+    check_exists(name, data_type="gif")
+    check_authorised(name, data_type="gif", username=user['username'])
     return JSONResponse(content=read_gif_data(name))
 
 async def delete_gif(
@@ -271,9 +254,8 @@ async def delete_gif(
     Returns:
         str: Success response message
     """
-    if not(images_authorised(name, user['username'])):
-        raise HTTPException(status_code=403, detail=f"You are unauthorised to delete {name}")
-
+    check_exists(name, data_type="gif")
+    check_authorised(name, data_type="gif", username=user['username'])
     os.remove("uns_data/gifs/" + name + ".gif")
     delete_gif_data(name)
 
@@ -292,22 +274,13 @@ async def download_gif(
     Returns:
         file: The specified gif in file form if no exception is raised
     """
+    check_exists(name, data_type="gif")
+    check_authorised(name, data_type="gif", username=user['username'])
 
     file_name = name + ".gif"
     file_path = "uns_data/gifs/" + file_name
 
-    try:
-        read_gif_data(name)
-    except KeyError:
-        raise HTTPException(status_code=400, detail=f"{name} does not exist")
-    
-    #Check if user is authorised
-    if not(gif_authorised(name, user["username"])):
-            raise HTTPException(status_code=403, detail=f"You are unauthorised to download {name}") 
-    
-    # Increment download
-    gif_data[name]["downloads"] = gif_data[name]["downloads"] + 1
-    
+    increment_gif_downloads(name)
     return FileResponse(path=file_path, filename=file_name, media_type='application/octet-stream')
         
 async def upload_to_GIPHY(
@@ -329,10 +302,8 @@ async def upload_to_GIPHY(
     Returns:
         dict: The response message from GIPHY if authorised
     """
-
-    #Check if user is authorised
-    if not(gif_authorised(name, user["username"])):
-            raise HTTPException(status_code=403, detail=f"You are unauthorised to upload {name}")
+    check_exists(name, data_type="gif")
+    check_authorised(name, data_type="gif", username=user['username'])
 
     file_name = name + ".gif"
     file_path = "uns_data/gifs/" + file_name
