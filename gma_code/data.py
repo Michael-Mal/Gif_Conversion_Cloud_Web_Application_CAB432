@@ -45,14 +45,12 @@ def create_images_data(
     name: str,
     username: str,
     public: bool,
-    number_of_images: int,
-    file_type: str
+    file_names: list[str]
 ):
     images_data[name] = {
             "username": username,
             "public": public,
-            "number_of_images": number_of_images,
-            "file_type": file_type
+            "file_names": file_names
         }
 
 # READ ALL

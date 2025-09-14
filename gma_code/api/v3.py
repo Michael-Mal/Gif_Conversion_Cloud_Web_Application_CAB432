@@ -37,21 +37,22 @@ async def upload_images(
 
     check_exists(name, data_type="images", desired_outcome = False)
 
-    # Get the filetype
+    # Generate the filenames
     file_type = images[0].filename.split(".")[1]
+    file_names = []
+    for i in range(len(images)):
+        file_names.append(name + "_" + str(i) + "." + file_type)
+
+    #Add to metadata
+    create_images_data(name, user['username'], public, file_names)
 
     #Upload to S3
     s3 = boto3.client('s3')
     success_msg = [name + " has been uploaded successfully"]
     for image in images:
-        file_name = name + "_" + str(images.index(image)) + "." + file_type
-        
+        file_name = read_images_data(name)["file_names"][images.index(image)]
         s3.upload_fileobj(image.file, 'a2-11', file_name)
-
         success_msg.append(image.filename)
-
-    #Add to metadata
-    create_images_data(name, user['username'], public, len(images), file_type)
 
     return JSONResponse(status_code=201, content=success_msg)
 
@@ -112,19 +113,33 @@ async def delete_images(
         user (str): The authentication token to use.
 
     Raises:
-        HTTPException: If you are unauthorised to delete the specified images
+        HTTPException: If you are unauthorised to delete the specified images,
+            or the images don't exist
 
     Returns:
         str: Success response message
     """
     check_exists(name, data_type="images")
     check_authorised(name, data_type="images", username=user['username'])
-    #shutil.rmtree("uns_data/images/" + name) #TODO: remove images from S3
+
+    # Delete from S3
+    images_keys = []
+    for file_name in read_images_data(name)["file_names"]:
+        images_keys.append({'Key': file_name})
+    s3 = boto3.client('s3')
+    s3.delete_objects(
+        Bucket='a2-11',
+        Delete={
+            'Objects': images_keys
+        }
+    )
+    
+    # Delete metadata
     delete_images_data(name)
     return JSONResponse(content=f"Successfully deleted {name}")
 
 async def convert_to_gif(
-    images_name: str, #TODO: Append the username to this so the user doesn't have to worry about adding it themself
+    images_name: str,
     user = Depends(authenticate_token),
     gif_name: str = Form(...), 
     width: Optional[int] = Form(0),
@@ -167,12 +182,10 @@ async def convert_to_gif(
     #Make gif
     frames = []
     s3 = boto3.client('s3')
-    images_data = read_images_data(images_name)
-    for i in range(images_data["number_of_images"]):
-        image = Image.new("1", (1, 1))
-        with tempfile.TemporaryFile(mode="wb+") as downloaded_image:
-            s3.download_fileobj('a2-11', (images_name + "_" + str(i) + "." + images_data["file_type"]), downloaded_image)
-            image = Image.open(downloaded_image)
+    for file_name in read_images_data(images_name)["file_names"]:
+        with tempfile.TemporaryFile(mode="wb+") as image_dl:
+            s3.download_fileobj('a2-11', file_name, image_dl)
+            image = Image.open(image_dl)
             if not(width == 0) and not(height == 0):
                 image = image.resize(size=(width, height))
             frames.append(image)
