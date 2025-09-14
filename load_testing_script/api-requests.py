@@ -27,7 +27,7 @@ def login(user: str):
         print("Login successful " + response.text)
     return response.text[14:-2] # Returns the auth token
 
-#login()
+#login("1")
 
 def generate_headers(auth_token: str):
     if (auth_token == "1"):

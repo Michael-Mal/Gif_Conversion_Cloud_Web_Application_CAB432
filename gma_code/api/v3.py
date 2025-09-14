@@ -173,13 +173,11 @@ async def convert_to_gif(
     check_exists(gif_name, data_type="gif", desired_outcome=False)
     
     #Make gifs directory
-    if not(os.path.exists("uns_data/")):
-        os.mkdir("uns_data/")
-    if not(os.path.exists("uns_data/gifs/")):
-        os.mkdir("uns_data/gifs/")
-    gif_file_path = "uns_data/gifs/" + gif_name + ".gif"
     
-    #Make gif
+    # Add to metadata
+    create_gif_data(gif_name, user['username'], public, images_name, width, height, duration, loop)
+
+    # Make gif
     frames = []
     s3 = boto3.client('s3')
     for file_name in read_images_data(images_name)["file_names"]:
@@ -189,11 +187,13 @@ async def convert_to_gif(
             if not(width == 0) and not(height == 0):
                 image = image.resize(size=(width, height))
             frames.append(image)
-    frame_one = frames[0]
-    frame_one.save(gif_file_path, format="GIF", append_images=frames, save_all=True, duration=duration, loop=loop)
-    
-    #Add to metadata
-    create_gif_data(gif_name, user['username'], public, images_name, width, height, duration, loop)
+
+    # Save gif to S3
+    with tempfile.TemporaryFile(mode="w+b") as gif_upl:
+        frames[0].save(gif_upl, format="GIF", append_images=frames, save_all=True, duration=duration, loop=loop)
+        gif_upl.flush()
+        gif_upl.seek(0)
+        s3.upload_fileobj(gif_upl, 'a2-11', gif_name + ".gif")
 
     return JSONResponse(status_code=201, content=f"Successfully converted {gif_name}")
 
@@ -291,10 +291,16 @@ async def download_gif(
     check_authorised(name, data_type="gif", username=user['username'])
 
     file_name = name + ".gif"
-    file_path = "uns_data/gifs/" + file_name
 
     increment_gif_downloads(name)
-    return FileResponse(path=file_path, filename=file_name, media_type='application/octet-stream')
+
+    # Download from s3
+    s3 = boto3.client('s3')
+    with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as gif_dl:
+        s3.download_fileobj('a2-11', file_name, gif_dl)
+        gif_dl.flush()
+        gif_dl.seek(0)
+        return FileResponse(gif_dl.name, filename=file_name, media_type='application/octet-stream')
         
 async def upload_to_GIPHY(
     name: str,

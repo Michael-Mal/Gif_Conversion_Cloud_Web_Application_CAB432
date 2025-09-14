@@ -11,8 +11,10 @@ def check_exists(
     """Raises a HTTPException if desired outcome is not true"""
 
     # Gets data based on datatype
-    data = images_data.keys()
-    if (data_type == "gif"):
+    data = set()
+    if (data_type == "images"):
+        data = images_data.keys()
+    else:
         data = gif_data.keys()
 
     # Check if name in data
@@ -32,8 +34,10 @@ def check_authorised(
     """Raises a HTTPException if not authorised"""
 
     # Gets data based on datatype
-    data = images_data[name]
-    if (data_type == "gif"):
+    data = set()
+    if (data_type == "images"):
+        data = images_data[name]
+    else:
         data = gif_data[name]
 
     # Check if authorised
