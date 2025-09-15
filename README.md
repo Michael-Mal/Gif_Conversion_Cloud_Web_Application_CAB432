@@ -31,7 +31,6 @@ CLI profile name [CAB432-STUDENT-901444280953]: default
 2. Open `testing/` in VS Code in a new window
 3. In `Python_Testing_Collection.py`, assign variable `url_name` to the URL (eg. `localhost` if testing locally)
 4. Uncomment the function calls you want to test, and then run the program. Hopefully everything is kind of self-explanatory.
-5. After I run a test, I like to delete the `uns_data/` directory (in the main program) so that I can run another test without getting errors saying the file already exists.
 
 ### How to build the Docker Image on EC2
 1. Create a new EC2 instance using the launch template 'A2_11'
