@@ -172,8 +172,6 @@ async def convert_to_gif(
 
     check_exists(gif_name, data_type="gif", desired_outcome=False)
     
-    #Make gifs directory
-    
     # Add to metadata
     create_gif_data(gif_name, user['username'], public, images_name, width, height, duration, loop)
 
@@ -269,8 +267,17 @@ async def delete_gif(
     """
     check_exists(name, data_type="gif")
     check_authorised(name, data_type="gif", username=user['username'])
-    os.remove("uns_data/gifs/" + name + ".gif")
+    
+    # Delete metadata
     delete_gif_data(name)
+
+    # Delete from S3
+    key = name + ".gif"
+    s3 = boto3.client('s3')
+    s3.delete_object(
+        Bucket='a2-11',
+        Key=key
+    )
 
     return JSONResponse(content=f"Successfully deleted {name}")
 
