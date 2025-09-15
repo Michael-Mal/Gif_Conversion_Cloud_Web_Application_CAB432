@@ -6,8 +6,8 @@
 - [x] Data Persistence Services: S3 (3 marks)
 - [ ] Data Persistence Services: DynamoDB (3 marks)
 
-### Icemonk
-- [ ] DNS with Route53 (2 marks)
+### Chris
+- [x] DNS with Route53 (2 marks)
 - [ ] Secrets manager (2 marks)
 - [ ] Infrastructure as Code (3 marks)
 
