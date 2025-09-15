@@ -3,7 +3,7 @@
 ## Assigned Tasks
 
 ### Michael
-- [ ] Data Persistence Services: S3 (3 marks)
+- [x] Data Persistence Services: S3 (3 marks)
 - [ ] Data Persistence Services: DynamoDB (3 marks)
 
 ### Icemonk
@@ -28,8 +28,8 @@ CLI profile name [CAB432-STUDENT-901444280953]: default
 
 ### How to test the program
 1. Run the main program either in VS Code or EC2 (AWS login required)
-2. Open `load_testing_script/` in VS Code in a new window
-3. In `api-requests.py`, assign variable `url_name` to the URL (eg. `localhost` if testing locally)
+2. Open `testing/` in VS Code in a new window
+3. In `Python_Testing_Collection.py`, assign variable `url_name` to the URL (eg. `localhost` if testing locally)
 4. Uncomment the function calls you want to test, and then run the program. Hopefully everything is kind of self-explanatory.
 5. After I run a test, I like to delete the `uns_data/` directory (in the main program) so that I can run another test without getting errors saying the file already exists.
 

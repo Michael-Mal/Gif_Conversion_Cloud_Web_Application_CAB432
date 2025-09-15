@@ -1,0 +1,95 @@
+{
+  "v": 10,
+  "name": "CAB432 Assignment",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "name": "Download",
+      "method": "GET",
+      "endpoint": "http://localhost:3000/v3/gifs/michael_hummingbird_gif/download/",
+      "params": [],
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1pY2hhZWwiLCJleHAiOjE3NTc4MzA0MDF9.PZ15nCt5dP-J0RjHrbLbebhYfOtcsHd1NiE71NHynZg",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "endpoint": "http://localhost:3000/v3/gifs/michael_hummingbird_gif/",
+      "name": "Delete Gif",
+      "params": [],
+      "headers": [],
+      "method": "DELETE",
+      "auth": {
+        "authType": "bearer",
+        "authActive": true,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1pY2hhZWwiLCJleHAiOjE3NTc5MDkxNTR9.fF5gNW_yMmTCNDgBrT7PVqHtXYaL00sruYKlOgv4SGk"
+      },
+      "preRequestScript": "",
+      "testScript": "",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "endpoint": "http://upload.giphy.com/v1/gifs",
+      "name": "Download from GIPHY",
+      "params": [
+        {
+          "key": "api_key",
+          "value": "ozIgfCZa4pYW1kO70WwBdgFPm0LfbJCu",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "ids",
+          "value": "plWLOorVrTonvBusOX",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [],
+      "method": "GET",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "preRequestScript": "",
+      "testScript": "",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "_ref_id": "coll_mfj8h91g_431db1b4-ea1e-4851-a71d-97ced8027d3d"
+}

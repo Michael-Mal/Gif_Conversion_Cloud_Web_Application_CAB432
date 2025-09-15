@@ -328,28 +328,32 @@ async def upload_to_GIPHY(
     Returns:
         dict: The response message from GIPHY if authorised
     """
-    check_exists(name, data_type="gif")
-    check_authorised(name, data_type="gif", username=user['username'])
+    #check_exists(name, data_type="gif")
+    #check_authorised(name, data_type="gif", username=user['username'])
 
     file_name = name + ".gif"
-    file_path = "uns_data/gifs/" + file_name
 
     url = 'http://upload.giphy.com/v1/gifs'
 
-    with open(file_path, "rb") as f:
-
-        data = {"api_key": "ozIgfCZa4pYW1kO70WwBdgFPm0LfbJCu",
+    data = {"api_key": "ozIgfCZa4pYW1kO70WwBdgFPm0LfbJCu",
                 "country_code": country_code,
                 "region": region}
-        files = {"file": f}
-        if not(tags == ""):
+
+    if not(tags == ""):
             data["tags"] = tags
+
+    # Get file from S3
+    s3 = boto3.client('s3')
+    with tempfile.TemporaryFile(mode="w+b") as gif_upl:
+        s3.download_fileobj('a2-11', file_name, gif_upl)
+        gif_upl.flush()
+        gif_upl.seek(0)
+        files = {"file": gif_upl}
     
         response = requests.post(url, data=data, files=files)
-        #print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
         if(response.status_code == 200):
             response_msg = {"Message": f"Successfully uploaded {name} to GIPHY",
                             "Detail": response.text}
             return JSONResponse(content=response_msg)
         else:
-            raise HTTPException(status_code=400, detail=f"Status code: " + str(response.status_code) + "\nResponse: " + response.text)
+            raise HTTPException(status_code=response.status_code, detail=f"Response: " + response.text)
