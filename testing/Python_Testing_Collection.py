@@ -54,7 +54,7 @@ def upload_test_images():
         images.append(("images", (image, open(image_path, "rb"))))
     upload_images(images, name="hummingbird_images")
 
-#upload_test_images()
+upload_test_images()
 
 def upload_load_images():
     """Uploads the images in /Load_Images/, which are high-res and are used to load down the server."""

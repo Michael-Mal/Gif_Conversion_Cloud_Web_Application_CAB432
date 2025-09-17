@@ -1,4 +1,9 @@
 from fastapi import HTTPException
+import boto3
+from botocore.exceptions import ClientError
+
+dynamodb = boto3.client("dynamodb", region_name='ap-southeast-2')
+qut_user = "n11963131@qut.edu.au"
 
 images_data = {}
 gif_data = {}
@@ -51,11 +56,32 @@ def create_images_data(
     public: bool,
     file_names: list[str]
 ):
-    images_data[name] = {
-            "username": username,
-            "public": public,
-            "file_names": file_names
-        }
+    #images_data[name] = {
+    #        "username": username,
+    #        "public": public,
+    #        "file_names": file_names
+    #    }
+    
+    file_names_w_attr = []
+    for file_name in file_names:
+        file_names_w_attr.append({"S": file_name})
+
+    try:
+        dynamodb.put_item(
+            TableName='a2-11',
+            Item={
+                "qut-username": {"S": qut_user},
+                "name": {"S": "images_" + name},
+                "username": {"S": "lol test 3"},
+                #"username": {"S": username},
+                "public": {"BOOL": public},
+                "file_names": {"L": file_names_w_attr}
+            },
+            ConditionExpression='attribute_not_exists(#n)',
+            ExpressionAttributeNames={"#n":"name"}
+        )
+    except ClientError as e:
+        print("This is an error", type(e))
 
 # READ ALL
 def read_all_images_data(
@@ -89,8 +115,17 @@ def read_all_images_data(
 def read_images_data(
     name: str
 ):
-    return images_data[name]
-    # Returns exception if not in images_data
+    try:
+        response = dynamodb.get_item(
+            TableName='a2-11',
+            Key={
+                "qut-username": {"S": qut_user},
+                "name": {"S": "images_" + name},
+            },
+        )
+        return response.get("Item")
+    except ClientError as e:
+        print(e)
 
 # DELETE
 def delete_images_data(

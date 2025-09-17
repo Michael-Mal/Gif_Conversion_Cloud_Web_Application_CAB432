@@ -5,11 +5,13 @@ import shutil
 from PIL import Image
 from typing import Optional
 from gma_code.auth import authenticate_token
-from gma_code.data import *
+from gma_code.DynamoDB_DAO import *
 import requests
 import shutil
 import boto3
 import tempfile
+
+s3 = boto3.client('s3')
 
 async def upload_images(
     name: str,
@@ -47,10 +49,9 @@ async def upload_images(
     create_images_data(name, user['username'], public, file_names)
 
     #Upload to S3
-    s3 = boto3.client('s3')
     success_msg = [name + " has been uploaded successfully"]
     for image in images:
-        file_name = read_images_data(name)["file_names"][images.index(image)]
+        file_name = read_images_data(name)["file_names"]["L"][images.index(image)]["S"]
         s3.upload_fileobj(image.file, 'a2-11', file_name)
         success_msg.append(image.filename)
 
@@ -126,7 +127,6 @@ async def delete_images(
     images_keys = []
     for file_name in read_images_data(name)["file_names"]:
         images_keys.append({'Key': file_name})
-    s3 = boto3.client('s3')
     s3.delete_objects(
         Bucket='a2-11',
         Delete={
@@ -177,7 +177,6 @@ async def convert_to_gif(
 
     # Make gif
     frames = []
-    s3 = boto3.client('s3')
     for file_name in read_images_data(images_name)["file_names"]:
         with tempfile.TemporaryFile(mode="wb+") as image_dl:
             s3.download_fileobj('a2-11', file_name, image_dl)
@@ -273,7 +272,6 @@ async def delete_gif(
 
     # Delete from S3
     key = name + ".gif"
-    s3 = boto3.client('s3')
     s3.delete_object(
         Bucket='a2-11',
         Key=key
@@ -302,7 +300,6 @@ async def download_gif(
     increment_gif_downloads(name)
 
     # Download from s3
-    s3 = boto3.client('s3')
     with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as gif_dl:
         s3.download_fileobj('a2-11', file_name, gif_dl)
         gif_dl.flush()
@@ -343,7 +340,6 @@ async def upload_to_GIPHY(
             data["tags"] = tags
 
     # Get file from S3
-    s3 = boto3.client('s3')
     with tempfile.TemporaryFile(mode="w+b") as gif_upl:
         s3.download_fileobj('a2-11', file_name, gif_upl)
         gif_upl.flush()

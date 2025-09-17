@@ -5,7 +5,7 @@ import shutil
 from PIL import Image
 from typing import Optional
 from gma_code.auth import authenticate_token
-from gma_code.data import *
+from gma_code.DynamoDB_DAO import *
 import requests
 import shutil
 
@@ -103,7 +103,7 @@ async def get_images_data(
     Returns:
         dict: Metadata related to the images
     """
-    if not(images_authorised(name, user['username'])):
+    if not(check_authorised(name, "images", user['username'])):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to read data related to {name}")
 
     return JSONResponse(content=read_images_data(name))
@@ -125,7 +125,7 @@ async def delete_images(
         str: Success response message
     """
 
-    if not(images_authorised(name, user['username'])):
+    if not(check_authorised(name, "images", user['username'])):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to delete {name}")
 
     shutil.rmtree("uns_data/images/" + name)
@@ -169,7 +169,7 @@ async def convert_to_gif(
             raise HTTPException(status_code=400, detail=f"{images_name} does not exist")
 
     #Check if user is authorised
-    if not(images_authorised(images_name, user['username'])):
+    if not(check_authorised(images_name, "images", user['username'])):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to convert {images_name}")
 
     #Add user to name if private
@@ -243,7 +243,7 @@ async def get_gif_data(
     Returns:
         dict: Metadata related to the gif
     """
-    if not(gif_authorised(name, user['username'])):
+    if not(check_authorised(name, "gif", user['username'])):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to read data related to {name}")
 
     return JSONResponse(content=read_gif_data(name))
@@ -264,7 +264,7 @@ async def delete_gif(
     Returns:
         str: Success response message
     """
-    if not(images_authorised(name, user['username'])):
+    if not(check_authorised(name, "gif", user['username'])):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to delete {name}")
 
     os.remove("uns_data/gifs/" + name + ".gif")
@@ -295,7 +295,7 @@ async def download_gif(
         raise HTTPException(status_code=400, detail=f"{name} does not exist")
     
     #Check if user is authorised
-    if not(gif_authorised(name, user["username"])):
+    if not(check_authorised(name, "gif", user["username"])):
             raise HTTPException(status_code=403, detail=f"You are unauthorised to download {name}") 
     
     # Increment download
@@ -324,7 +324,7 @@ async def upload_to_GIPHY(
     """
 
     #Check if user is authorised
-    if not(gif_authorised(name, user["username"])):
+    if not(check_authorised(name, "gif", user["username"])):
             raise HTTPException(status_code=403, detail=f"You are unauthorised to upload {name}")
 
     file_name = name + ".gif"
