@@ -1,5 +1,6 @@
 from fastapi import UploadFile, Form, HTTPException, Depends, Path
 from fastapi.responses import JSONResponse, FileResponse
+from gma_code.secrets_loader import get_secret
 import os
 import shutil
 from PIL import Image
@@ -323,6 +324,8 @@ async def upload_to_GIPHY(
         dict: The response message from GIPHY if authorised
     """
 
+    giphy_api_key = get_secret("A2_Group11-GIPHY")["GIPHY_API"]
+
     #Check if user is authorised
     if not(check_authorised(name, "gif", user["username"])):
             raise HTTPException(status_code=403, detail=f"You are unauthorised to upload {name}")
@@ -334,7 +337,7 @@ async def upload_to_GIPHY(
 
     with open(file_path, "rb") as f:
 
-        data = {"api_key": "ozIgfCZa4pYW1kO70WwBdgFPm0LfbJCu",
+        data = {"api_key": giphy_api_key,
                 "country_code": country_code,
                 "region": region}
         files = {"file": f}

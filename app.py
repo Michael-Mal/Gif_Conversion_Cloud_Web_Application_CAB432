@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from gma_code.routes import v1_router, v2_router, v3_router
+from gma_code.secrets_loader import get_secret
 
 app = FastAPI(
     title="GIF Maker API",
@@ -13,7 +14,8 @@ app = FastAPI(
     version="v3"
     )
 
-app.secret_key = '70495749971baffcf6634a5dcd0a782e2d538d7f5b7c1f81b251156319e213597037fd417c608827970a5b3f261e4b2f12923f20b5a2b2902694bfdf26988a97'
+jwt_secret = get_secret("A2_Group11-JWT_KEY")["JWT_SECRET"]
+app.secret_key = jwt_secret
 
 app.include_router(v1_router)
 app.include_router(v2_router)
