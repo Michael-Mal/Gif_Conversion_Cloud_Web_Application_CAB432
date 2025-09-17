@@ -1,5 +1,6 @@
 from fastapi import UploadFile, Form, HTTPException, Depends, Path
 from fastapi.responses import JSONResponse, FileResponse
+from gma_code.secrets_loader import get_secret
 import os
 import shutil
 from PIL import Image
@@ -331,11 +332,13 @@ async def upload_to_GIPHY(
     #check_exists(name, data_type="gif")
     #check_authorised(name, data_type="gif", username=user['username'])
 
+    giphy_api_key = get_secret("A2_Group11-GIPHY")["GIPHY_API"]
+
     file_name = name + ".gif"
 
     url = 'http://upload.giphy.com/v1/gifs'
 
-    data = {"api_key": "ozIgfCZa4pYW1kO70WwBdgFPm0LfbJCu",
+    data = {"api_key": giphy_api_key,
                 "country_code": country_code,
                 "region": region}
 
