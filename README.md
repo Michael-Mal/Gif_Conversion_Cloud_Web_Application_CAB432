@@ -8,7 +8,7 @@
 
 ### Chris
 - [x] DNS with Route53 (2 marks)
-- [ ] Secrets manager (2 marks)
+- [x] Secrets manager (2 marks)
 - [ ] Infrastructure as Code (3 marks)
 
 ## Helpful Info
