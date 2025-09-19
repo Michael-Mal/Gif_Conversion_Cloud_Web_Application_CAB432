@@ -52,7 +52,7 @@ def upload_test_images():
     for image in os.listdir(image_dir):
         image_path = image_dir + image
         images.append(("images", (image, open(image_path, "rb"))))
-    upload_images(images, name="hummingbird_images")
+    upload_images(images, name="hummingbird")
 
 upload_test_images()
 
@@ -63,7 +63,7 @@ def upload_load_images():
     for image in os.listdir(image_dir):
         image_path = image_dir + image
         images.append(("images", (image, open(image_path, "rb"))))
-    upload_images(images, name="load_images")
+    upload_images(images, name="load")
 
 #upload_load_images()
 
@@ -95,10 +95,10 @@ def convert_to_gif(images_name: str, gif_name: str):
     response = requests.post(url, headers = user_1_auth, data = data)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-#convert_to_gif("michael_hummingbird_images", "hummingbird_gif")
+#convert_to_gif("michael_hummingbird", "hummingbird")
 
 #for i in range(100):
-#   convert_to_gif("michael_load_images", "load_gif")
+#   convert_to_gif("michael_load", "load")
 
 
 
@@ -121,7 +121,7 @@ def get_all_gifs(page: int, sort_descending = bool):
 
 
 def download_gif():
-    url = base_url + 'gifs/michael_test_gif/download/'
+    url = base_url + 'gifs/michael_hummingbird/download/'
     response = requests.get(url, headers = user_1_auth)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
@@ -131,7 +131,7 @@ def download_gif():
 
 
 def upload_to_GIPHY():
-    url = base_url + 'gifs/michael_hummingbird_gif/GIPHY/'
+    url = base_url + 'gifs/michael_hummingbird/GIPHY/'
     response = requests.post(url, headers = user_1_auth)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 

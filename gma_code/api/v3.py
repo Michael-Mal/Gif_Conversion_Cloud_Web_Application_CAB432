@@ -2,13 +2,11 @@ from fastapi import UploadFile, Form, HTTPException, Depends, Path
 from fastapi.responses import JSONResponse, FileResponse
 from gma_code.secrets_loader import get_secret
 import os
-import shutil
 from PIL import Image
 from typing import Optional
 from gma_code.auth import authenticate_token
 from gma_code.DynamoDB_DAO import *
 import requests
-import shutil
 import boto3
 import tempfile
 
@@ -38,7 +36,8 @@ async def upload_images(
     if not(public):
         name = user['username'] + "_" + name
 
-    check_exists(name, data_type="images", desired_outcome = False)
+    if (read_images_data(name) is not None) and not (DEV_MODE):
+        raise HTTPException(status_code=400, detail=f"{name} already exists")
 
     # Generate the filenames
     file_type = images[0].filename.split(".")[1]
@@ -50,13 +49,12 @@ async def upload_images(
     create_images_data(name, user['username'], public, file_names)
 
     #Upload to S3
-    success_msg = [name + " has been uploaded successfully"]
+    images_data = read_images_data(name)
     for image in images:
-        file_name = read_images_data(name)["file_names"]["L"][images.index(image)]["S"]
+        file_name = images_data["file_names"]["L"][images.index(image)]["S"]
         s3.upload_fileobj(image.file, 'a2-11', file_name)
-        success_msg.append(image.filename)
-
-    return JSONResponse(status_code=201, content=success_msg)
+    
+    return JSONResponse(status_code=201, content=images_data)
 
 async def get_all_images_data(
     user = Depends(authenticate_token),

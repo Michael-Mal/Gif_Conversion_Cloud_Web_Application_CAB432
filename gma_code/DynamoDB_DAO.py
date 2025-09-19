@@ -1,9 +1,11 @@
 from fastapi import HTTPException
 import boto3
 from botocore.exceptions import ClientError
+import os
 
 dynamodb = boto3.client("dynamodb", region_name='ap-southeast-2')
 qut_user = "n11963131@qut.edu.au"
+DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"
 
 images_data = {}
 gif_data = {}
@@ -55,33 +57,40 @@ def create_images_data(
     username: str,
     public: bool,
     file_names: list[str]
-):
-    #images_data[name] = {
-    #        "username": username,
-    #        "public": public,
-    #        "file_names": file_names
-    #    }
-    
+):    
     file_names_w_attr = []
     for file_name in file_names:
         file_names_w_attr.append({"S": file_name})
 
-    try:
-        dynamodb.put_item(
-            TableName='a2-11',
-            Item={
+    data = {
                 "qut-username": {"S": qut_user},
                 "name": {"S": "images_" + name},
-                "username": {"S": "lol test 3"},
-                #"username": {"S": username},
+                "username": {"S": username},
                 "public": {"BOOL": public},
                 "file_names": {"L": file_names_w_attr}
-            },
-            ConditionExpression='attribute_not_exists(#n)',
-            ExpressionAttributeNames={"#n":"name"}
-        )
+            }
+
+    try:
+        if not DEV_MODE:
+            dynamodb.put_item(
+                TableName='a2-11',
+                Item=data,
+                ConditionExpression='attribute_not_exists(#n)',
+                ExpressionAttributeNames={"#n":"name"}
+            )
+        # Allow overwriting if in dev mode
+        else:
+            dynamodb.put_item(
+                TableName='a2-11',
+                Item=data
+            )
+
     except ClientError as e:
-        print("This is an error", type(e))
+        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+            raise HTTPException(status_code=400, detail=f"{name} already exists")
+        else:
+            raise RuntimeError(f"Unexpected error: {e}")
+
 
 # READ ALL
 def read_all_images_data(
@@ -125,7 +134,7 @@ def read_images_data(
         )
         return response.get("Item")
     except ClientError as e:
-        print(e)
+        raise RuntimeError(f"Unexpected error: {e}")
 
 # DELETE
 def delete_images_data(
