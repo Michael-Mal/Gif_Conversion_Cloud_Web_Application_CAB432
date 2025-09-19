@@ -54,7 +54,7 @@ def upload_test_images():
         images.append(("images", (image, open(image_path, "rb"))))
     upload_images(images, name="hummingbird")
 
-upload_test_images()
+#upload_test_images()
 
 def upload_load_images():
     """Uploads the images in /Load_Images/, which are high-res and are used to load down the server."""
@@ -70,15 +70,16 @@ def upload_load_images():
 
 
 
-def get_all_images():
+def get_all_images(public: bool):
     url = base_url + 'images/'
-    data = {"public": False,
-            "limit": 1,
-            "page": 1}
+    data = {"public": public,
+            "limit": 0,
+            "page": 0}
     response = requests.get(url, headers=user_1_auth, data=data)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-#get_all_images()
+
+#get_all_images(public=False)
 
 
 

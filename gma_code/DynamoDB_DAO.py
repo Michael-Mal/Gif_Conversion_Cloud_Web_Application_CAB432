@@ -5,6 +5,7 @@ import os
 
 dynamodb = boto3.client("dynamodb", region_name='ap-southeast-2')
 qut_user = "n11963131@qut.edu.au"
+table_name = 'a2-11'
 DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"
 
 images_data = {}
@@ -73,7 +74,7 @@ def create_images_data(
     try:
         if not DEV_MODE:
             dynamodb.put_item(
-                TableName='a2-11',
+                TableName=table_name,
                 Item=data,
                 ConditionExpression='attribute_not_exists(#n)',
                 ExpressionAttributeNames={"#n":"name"}
@@ -81,7 +82,7 @@ def create_images_data(
         # Allow overwriting if in dev mode
         else:
             dynamodb.put_item(
-                TableName='a2-11',
+                TableName=table_name,
                 Item=data
             )
 
@@ -98,23 +99,35 @@ def read_all_images_data(
     limit: int = 0,
     page: int = 1
 ):
-    images_list = {}
-    for images in images_data.keys():
+    images_list = []
+    try:
+        response = dynamodb.query(
+            TableName=table_name,
+            KeyConditionExpression="#pk = :username AND begins_with(#sk, :nameStart)",
+            ExpressionAttributeNames={"#pk": "qut-username", "#sk": 'name'},
+            ExpressionAttributeValues={":username": {"S": qut_user}, ":nameStart": {"S": "images_"}},
+        )
+        images_list = response.get("Items")
+    except ClientError as e:
+        raise RuntimeError(f"Unexpected error: {e}")
+
+    images_list_p = []
+    for images in images_list:
+        images.pop("qut-username")
         if (username == ""):
             # Get public images
-            if images_data[images]['public'] == True:
-                images_list[images] = images_data[images]
+            if images['public']['BOOL'] == True:
+                images_list_p.append(images)
         else:
             # Get user-made images
-            if images_data[images]['username'] == username:
-                images_list[images] = images_data[images]
+            if images['username']['S'] == username:
+                images_list_p.append(images)
+    images_list = images_list_p
 
     # Pagination
     if not(limit == 0):
-        all_items = list(images_list.items())
         skip = (page * limit) - limit
-        paginated_items = all_items[skip: skip + limit]
-        images_list = dict(paginated_items)
+        images_list = images_list[skip: skip + limit]
 
     # Filtering/sorting not needed due to limited metadata
 
@@ -131,8 +144,9 @@ def read_images_data(
                 "qut-username": {"S": qut_user},
                 "name": {"S": "images_" + name},
             },
-        )
-        return response.get("Item")
+        ).get("Item")
+        response.pop("qut-username")
+        return response
     except ClientError as e:
         raise RuntimeError(f"Unexpected error: {e}")
 
