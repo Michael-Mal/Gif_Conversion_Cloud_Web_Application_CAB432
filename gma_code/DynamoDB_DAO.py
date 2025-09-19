@@ -8,31 +8,8 @@ qut_user = "n11963131@qut.edu.au"
 table_name = 'a2-11'
 DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"
 
-images_data = {}
+#images_data = {}
 gif_data = {}
-
-def check_exists(
-    name: str,
-    data_type: str,
-    desired_outcome: bool = True
-):
-    """Raises a HTTPException if desired outcome is not true"""
-
-    # Gets data based on datatype
-    data = set()
-    if (data_type == "images"):
-        data = images_data.keys()
-    else:
-        data = gif_data.keys()
-
-    # Check if name in data
-    if(name in data):
-        if (desired_outcome == False):
-            raise HTTPException(status_code=400, detail=f"{name} already exists")
-    else:
-        if (desired_outcome == True):
-            raise HTTPException(status_code=404, detail=f"{name} cannot be found")
-        
 
 def check_authorised(
     name: str,
@@ -44,7 +21,7 @@ def check_authorised(
     # Gets data based on datatype
     data = set()
     if (data_type == "images"):
-        data = images_data[name]
+        data = read_images_data(name)
     else:
         data = gif_data[name]
 
@@ -154,7 +131,16 @@ def read_images_data(
 def delete_images_data(
     name: str
 ):
-    images_data.pop(name)
+    try:
+        dynamodb.delete_item(
+            TableName=table_name,
+            Key={
+                "qut-username": {"S": qut_user},
+                "name": {"S": "images_" + name},
+            }
+        )
+    except ClientError as e:
+        raise RuntimeError(f"Unexpected error: {e}")
 
 # CREATE
 def create_gif_data(

@@ -1,7 +1,6 @@
 from fastapi import UploadFile, Form, HTTPException, Depends, Path
 from fastapi.responses import JSONResponse, FileResponse
 from gma_code.secrets_loader import get_secret
-import os
 from PIL import Image
 from typing import Optional
 from gma_code.auth import authenticate_token
@@ -11,6 +10,7 @@ import boto3
 import tempfile
 
 s3 = boto3.client('s3')
+doesNotExistException = HTTPException(status_code=404, detail="The requested item cannot be found")
 
 async def upload_images(
     name: str,
@@ -98,9 +98,11 @@ async def get_images_data(
     Returns:
         dict: Metadata related to the images
     """
-    check_exists(name, data_type="images")
+    images_data = read_images_data(name)
+    if (images_data is None):
+        raise doesNotExistException
     check_authorised(name, data_type="images", username=user['username'])
-    return JSONResponse(content=read_images_data(name))
+    return JSONResponse(content=images_data)
 
 async def delete_images(
     name: str,
@@ -119,22 +121,26 @@ async def delete_images(
     Returns:
         str: Success response message
     """
-    check_exists(name, data_type="images")
+
+    images_data = read_images_data(name)
+    if (images_data is None):
+        raise doesNotExistException
     check_authorised(name, data_type="images", username=user['username'])
 
     # Delete from S3
     images_keys = []
-    for file_name in read_images_data(name)["file_names"]:
-        images_keys.append({'Key': file_name})
+    for file_name in images_data["file_names"]['L']:
+        images_keys.append({'Key': file_name['S']})
     s3.delete_objects(
         Bucket='a2-11',
         Delete={
             'Objects': images_keys
         }
     )
-    
+
     # Delete metadata
-    delete_images_data(name)
+    #delete_images_data(name)
+    
     return JSONResponse(content=f"Successfully deleted {name}")
 
 async def convert_to_gif(
@@ -162,21 +168,21 @@ async def convert_to_gif(
     Returns:
         str: Confirmation message if no exception is raised
     """
-    check_exists(images_name, data_type="images")
+    images_data = read_images_data(images_name)
+    if (images_data is None):
+        raise doesNotExistException
     check_authorised(images_name, data_type="images", username=user['username'])
 
     #Add user to name if private
     if not(public):
         gif_name = user['username'] + "_" + gif_name
-
-    check_exists(gif_name, data_type="gif", desired_outcome=False)
     
     # Add to metadata
     create_gif_data(gif_name, user['username'], public, images_name, width, height, duration, loop)
 
     # Make gif
     frames = []
-    for file_name in read_images_data(images_name)["file_names"]:
+    for file_name in images_data["file_names"]:
         with tempfile.TemporaryFile(mode="wb+") as image_dl:
             s3.download_fileobj('a2-11', file_name, image_dl)
             image = Image.open(image_dl)
