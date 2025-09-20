@@ -139,7 +139,7 @@ async def delete_images(
     )
 
     # Delete metadata
-    #delete_images_data(name)
+    delete_images_data(name)
     
     return JSONResponse(content=f"Successfully deleted {name}")
 
