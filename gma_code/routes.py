@@ -2,7 +2,7 @@ from fastapi import APIRouter
 import gma_code.api.v1 as v1
 import gma_code.api.v2 as v2
 import gma_code.api.v3 as v3
-from gma_code.auth import login
+import gma_code.auth as auth
 
 # --- Version 1 ---
 v1_router = APIRouter(prefix="/v1")
@@ -15,7 +15,9 @@ v1_router.get("/gifs/{name}/download/")(v1.download_gif)
 # --- Version 2 ---
 v2_router = APIRouter(prefix="/v2")
 
-v2_router.post("/login/")(login)
+v2_router.post("/auth/signup")(auth.signup)
+v2_router.post("/auth/confirm")(auth.confirm_user)
+v2_router.post("/auth/login")(auth.authenticate)
 
 # Images
 v2_router.post("/images/{name}/")(v2.upload_images)
@@ -35,7 +37,10 @@ v2_router.post("/gifs/{name}/GIPHY/")(v2.upload_to_GIPHY)
 # --- Version 3 ---
 v3_router = APIRouter(prefix="/v3")
 
-v3_router.post("/login/")(login)
+
+v3_router.post("/auth/signup")(auth.signup)
+v3_router.post("/auth/confirm")(auth.confirm_user)
+v3_router.post("/auth/login")(auth.authenticate)
 
 # Images
 v3_router.post("/images/{name}/")(v3.upload_images)
