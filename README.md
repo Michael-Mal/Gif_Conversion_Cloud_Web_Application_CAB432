@@ -10,6 +10,7 @@
 - [x] DNS with Route53 (2 marks)
 - [x] Secrets manager (2 marks)
 - [ ] Infrastructure as Code (3 marks)
+- [x] Authentication with Cognito (3 marks)
 
 ## Helpful Info
 ### How to login to AWS
@@ -26,11 +27,13 @@ CLI default output format [None]:
 CLI profile name [CAB432-STUDENT-901444280953]: default
 ```
 
+3. If already configured AWS CLI can just use `aws sso login`
+
 ### How to test the program
 1. Run the main program either in VS Code or EC2 (AWS login required)
 2. Open `testing/` in VS Code in a new window
-3. In `Python_Testing_Collection.py`, assign variable `url_name` to the URL (eg. `localhost` if testing locally)
-4. Uncomment the function calls you want to test, and then run the program. Hopefully everything is kind of self-explanatory.
+3. In `Python_Testing_Collection.py`, assign variable `API_HOST` to the URL (eg. `localhost` if testing locally)
+4. Change to 'cli_interface.py', and run file - follow prompts provided
 
 ### How to build the Docker Image on EC2
 1. Create a new EC2 instance using the launch template 'A2_11'
