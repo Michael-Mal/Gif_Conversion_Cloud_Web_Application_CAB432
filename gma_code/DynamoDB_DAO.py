@@ -153,16 +153,39 @@ def create_gif_data(
     duration: int,
     loop: int
 ):
-    gif_data[gif_name] = {
-        "username": username,
-        "public": public,
-        "images_name": images_name,
-        "width": width,
-        "height": height,
-        "duration": duration,
-        "loop": loop,
-        "downloads": 0
-    }
+    data = {
+                "qut-username": {"S": qut_user},
+                "name": {"S": "gif_" + gif_name},
+                "username": {"S": username},
+                "public": {"BOOL": public},
+                "images_name": images_name,
+                "width": width,
+                "height": height,
+                "duration": duration,
+                "loop": loop,
+                "downloads": 0
+            }
+
+    try:
+        if not DEV_MODE:
+            dynamodb.put_item(
+                TableName=table_name,
+                Item=data,
+                ConditionExpression='attribute_not_exists(#n)',
+                ExpressionAttributeNames={"#n":"name"}
+            )
+        # Allow overwriting if in dev mode
+        else:
+            dynamodb.put_item(
+                TableName=table_name,
+                Item=data
+            )
+
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+            raise HTTPException(status_code=400, detail=f"{gif_name} already exists")
+        else:
+            raise RuntimeError(f"Unexpected error: {e}")
 
 # READ ALL
 def read_all_gif_data(
@@ -173,6 +196,30 @@ def read_all_gif_data(
     sort_by_field: str = "",
     sort_descending: bool = False
 ):
+    gif_list = []
+    try:
+        gif_list = dynamodb.query(
+            TableName=table_name,
+            KeyConditionExpression="#pk = :username AND begins_with(#sk, :nameStart)",
+            ExpressionAttributeNames={"#pk": "qut-username", "#sk": 'name'},
+            ExpressionAttributeValues={":username": {"S": qut_user}, ":nameStart": {"S": "gif_"}},
+        ).get("Items")
+    except ClientError as e:
+        raise RuntimeError(f"Unexpected error: {e}")
+
+    gif_list_p = []
+    for gif in gif_list:
+        gif.pop("qut-username")
+        if (username == ""):
+            # Get public gifs
+            if gif['public']['BOOL'] == True:
+                gif_list_p.append(gif)
+        else:
+            # Get user-made gifs
+            if gif['username']['S'] == username:
+                gif_list_p.append(gif)
+    gif_list = gif_list_p
+
     gifs = {}
     for gif in gif_data.keys():
         if (username == ""):
