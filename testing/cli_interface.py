@@ -2,6 +2,8 @@ from gma_code import auth
 from testing import Python_Testing_Collection as ptc
 from gma_code import secrets_loader
 
+# Remember to change API_HOST in Python_Testing_Collection to container address before running script
+
 def interactive_auth():
     global user_1_auth, current_username
     choice = input("Choose [S]ign up or [L]og in: ").strip().lower()
