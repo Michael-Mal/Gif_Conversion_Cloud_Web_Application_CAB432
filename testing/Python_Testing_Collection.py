@@ -1,46 +1,52 @@
 import requests
 import os
+from gma_code import secrets_loader
 
-url_name = "localhost"
-ver = "v3"
-base_url = "http://" + url_name + ":3000/" + ver + "/"
+API_HOST = os.getenv("ec2-54-206-89-132.ap-southeast-2.compute.amazonaws.com") # Change Public DNS when needed
+API_PORT = os.getenv("API_PORT", "3000")
+API_VER  = os.getenv("API_VER", "v3")
+
+BASE_V3   = f"http://{API_HOST}:{API_PORT}/{API_VER}/"
+BASE_AUTH = f"http://{API_HOST}:{API_PORT}/{API_VER}/auth/"
+
+# Global variables to hold info when logged in to utilise script functions
+user_1_auth = None
+current_username = None
 
 
-def login(user: int):
-    url = base_url + 'login/'
+def api_signup(username: str, email: str, password: str):
+    # Run once. Will 400 if the user already exists.
+    url = BASE_AUTH + "signup"
+    r = requests.post(url, json={"username": username, "email": email, "password": password})
+    print("Signup:", r.status_code, r.text)
+    return username, password
 
-    json = {}
-    if(user == 1):
-        json = {
-            "username": 'michael',
-            "password": 'mallett'
-        }
-    elif(user == 2):
-        json = {
-            "username": 'test_account_1',
-            "password": 'test_password'
-        }
-    
+def api_confirm(username: str):
+    code = input("Enter confirmation code: ")
+    url = BASE_AUTH + "confirm"
+    r = requests.post(url, json={"username": username, "code": code})
+    print("Confirm:", r.status_code, r.text)
 
-    response = requests.post(url, json=json)
+def api_login(username: str, password: str):
+    # Returns tokens JSON: {id_token, access_token, refresh_token, ...}
+    url = BASE_AUTH + "login"
+    r = requests.post(url, json={"username": username, "password": password})
+    print("Login:", r.status_code, r.text)
+    return r.json() if r.ok else None
 
-    if(response.status_code == 200):
-        bearer_auth_token = "Bearer " + response.text[14:-2]
-        return {"Authorization": bearer_auth_token}
+def auth_header_from_tokens(tokens: dict, use: str = "access"):
+    if not tokens:
+        return None
+    authres = tokens.get("AuthenticationResult") or tokens  # handle both shapes
+    if use == "access":
+        token = authres.get("AccessToken") or authres.get("access_token")
     else:
-        print("wee waw wee waw " + response.text)
+        token = authres.get("IdToken") or authres.get("id_token")
 
-user_1_auth = login(1)
-print("User 1 " + str(user_1_auth))
-
-#user_2_auth = login(2)
-#print("User 2 " + str(user_2_auth))
-
-
-
+    return {"Authorization": f"Bearer {token}"} if token else None
 
 def upload_images(images, name: str):
-    url = base_url + 'images/' + name + "/"
+    url = BASE_V3 + f"images/{name}"
     data = {"public": False}
     response = requests.post(url, headers=user_1_auth, data=data, files=images)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
@@ -52,9 +58,7 @@ def upload_test_images():
     for image in os.listdir(image_dir):
         image_path = image_dir + image
         images.append(("images", (image, open(image_path, "rb"))))
-    upload_images(images, name="hummingbird")
-
-#upload_test_images()
+    upload_images(images, name="hummingbird_images")
 
 def upload_load_images():
     """Uploads the images in /Load_Images/, which are high-res and are used to load down the server."""
@@ -65,27 +69,16 @@ def upload_load_images():
         images.append(("images", (image, open(image_path, "rb"))))
     upload_images(images, name="load")
 
-#upload_load_images()
-
-
-
-
-def get_all_images(public: bool):
-    url = base_url + 'images/'
-    data = {"public": public,
-            "limit": 0,
-            "page": 0}
+def get_all_images():
+    url = BASE_V3 + 'images/'
+    data = {"public": False,
+            "limit": 1,
+            "page": 1}
     response = requests.get(url, headers=user_1_auth, data=data)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-
-#get_all_images(public=False)
-
-
-
-
 def convert_to_gif(images_name: str, gif_name: str):
-    url = base_url + 'images/' + images_name + '/convert_to_gif/'
+    url = BASE_V3 + 'images/' + images_name + '/convert_to_gif/'
 
     data = {"gif_name": gif_name,
             "width": 280,
@@ -96,17 +89,8 @@ def convert_to_gif(images_name: str, gif_name: str):
     response = requests.post(url, headers = user_1_auth, data = data)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-#convert_to_gif("michael_hummingbird", "hummingbird")
-
-#for i in range(100):
-#   convert_to_gif("michael_load", "load")
-
-
-
-
-
 def get_all_gifs(page: int, sort_descending = bool):
-    url = base_url + 'gifs/'
+    url = BASE_V3 + 'gifs/'
     data = {"public": False,
             "limit": 0,
             "page": page,
@@ -116,31 +100,19 @@ def get_all_gifs(page: int, sort_descending = bool):
     response = requests.get(url, headers=user_1_auth, data=data)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-#get_all_gifs(1, False)
-
-
-
-
 def download_gif():
-    url = base_url + 'gifs/michael_hummingbird/download/'
+    url = BASE_V3 + 'gifs/michael_test_gif/download/'
     response = requests.get(url, headers = user_1_auth)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-#download_gif()
-
-
-
-
 def upload_to_GIPHY():
-    url = base_url + 'gifs/michael_hummingbird/GIPHY/'
+    url = BASE_V3 + 'gifs/michael_hummingbird_gif/GIPHY/'
     response = requests.post(url, headers = user_1_auth)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
-#upload_to_GIPHY()
-
 def download_from_GIPHY(id: str):
     url = 'http://upload.giphy.com/v1/gifs'
-    params = {"api_key": "ozIgfCZa4pYW1kO70WwBdgFPm0LfbJCu",
+    params = {"api_key": secrets_loader.get_secret("A2_Group11-GIPHY")["GIPHY_API"],
             "ids": id}
     response = requests.get(url, params=params)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)

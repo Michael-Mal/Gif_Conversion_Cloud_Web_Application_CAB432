@@ -5,3 +5,5 @@ pillow
 pyjwt
 requests
 boto3
+pydantic
+cryptography
