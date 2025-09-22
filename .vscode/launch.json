@@ -17,8 +17,8 @@
             "program": "${workspaceFolder}/testing/cli_interface.py",
             "env": { 
                 "PYTHONPATH": "${workspaceFolder}",
-                "LOGIN_USERNAME": "michael",
-                "LOGIN_PASSWORD": "Mallett0!"
+                "LOGIN_USERNAME": "",
+                "LOGIN_PASSWORD": ""
             }
         }
     ]
