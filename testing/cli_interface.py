@@ -72,7 +72,6 @@ def menu():
     print("5) Get all GIFs")
     print("6) Download gif (fixed name)")
     print("7) Upload to GIPHY (fixed name)")
-    print("8) Download from GIPHY by ID")
     print("9) Exit")
     return input("Choose: ").strip()
 
