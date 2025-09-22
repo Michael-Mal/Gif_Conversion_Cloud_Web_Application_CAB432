@@ -4,7 +4,7 @@
 from botocore.exceptions import ClientError
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
-from fastapi import HTTPException, Depends, Header
+from fastapi import HTTPException, Depends, Header, Form
 from gma_code.secrets_loader import get_secret
 from pydantic import BaseModel
 import hmac, hashlib, base64, jwt
@@ -50,7 +50,9 @@ class LoginIn(BaseModel):
 # --------------------
 
 
-def signup(username: str, email: str, password: str):
+def signup(username: str = Form(...), 
+           email: str = Form(...), 
+           password: str = Form(...)):
     client = boto3.client("cognito-idp", region_name="ap-southeast-2")
     try:
         response = client.sign_up(
@@ -74,7 +76,8 @@ def signup(username: str, email: str, password: str):
 # --------------------
 
 
-def confirm_user(username: str, code: str):
+def confirm_user(username: str = Form(...), 
+                 code: str = Form(...)):
     client = boto3.client("cognito-idp", region_name="ap-southeast-2")
     try:
         return client.confirm_sign_up(
@@ -92,7 +95,8 @@ def confirm_user(username: str, code: str):
 # --------------------
 
 
-def authenticate(username: str, password: str):
+def authenticate(username: str = Form(...), 
+                 password: str = Form(...)):
     client = boto3.client("cognito-idp", region_name="ap-southeast-2")
     try:
         response = client.initiate_auth(

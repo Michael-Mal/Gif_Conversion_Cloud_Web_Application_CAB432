@@ -1,8 +1,8 @@
 import requests
 import os
-from gma_code import secrets_loader
 
-API_HOST = os.getenv("ec2-54-206-89-132.ap-southeast-2.compute.amazonaws.com") # Change Public DNS when needed
+
+API_HOST = os.getenv("API_HOST", "localhost") # Change Public DNS when needed
 API_PORT = os.getenv("API_PORT", "3000")
 API_VER  = os.getenv("API_VER", "v3")
 
@@ -54,16 +54,16 @@ def upload_images(images, name: str):
 def upload_test_images():
     """Uploads the images in /Hummingbird_Images/, which are low-res and easy to test with."""
     images = []
-    image_dir = "./Hummingbird_Images/"
+    image_dir = "./testing/Hummingbird_Images/"
     for image in os.listdir(image_dir):
         image_path = image_dir + image
         images.append(("images", (image, open(image_path, "rb"))))
-    upload_images(images, name="hummingbird_images")
+    upload_images(images, name="hummingbird")
 
 def upload_load_images():
     """Uploads the images in /Load_Images/, which are high-res and are used to load down the server."""
     images = []
-    image_dir = "./Load_Images/"
+    image_dir = "./testing/Load_Images/"
     for image in os.listdir(image_dir):
         image_path = image_dir + image
         images.append(("images", (image, open(image_path, "rb"))))
@@ -101,20 +101,11 @@ def get_all_gifs(page: int, sort_descending = bool):
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
 def download_gif():
-    url = BASE_V3 + 'gifs/michael_test_gif/download/'
+    url = BASE_V3 + 'gifs/michael_hummingbird/download/'
     response = requests.get(url, headers = user_1_auth)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
 
 def upload_to_GIPHY():
-    url = BASE_V3 + 'gifs/michael_hummingbird_gif/GIPHY/'
+    url = BASE_V3 + 'gifs/michael_hummingbird/GIPHY/'
     response = requests.post(url, headers = user_1_auth)
     print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
-
-def download_from_GIPHY(id: str):
-    url = 'http://upload.giphy.com/v1/gifs'
-    params = {"api_key": secrets_loader.get_secret("A2_Group11-GIPHY")["GIPHY_API"],
-            "ids": id}
-    response = requests.get(url, params=params)
-    print("Status code: " + str(response.status_code) + "\nResponse: " + response.text)
-
-#download_from_GIPHY("A5BKBHxIOKauFDBcaF")

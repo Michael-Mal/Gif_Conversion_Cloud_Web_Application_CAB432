@@ -18,6 +18,7 @@ def check_authorised(
 ):
     """Raises a HTTPException if not authorised"""
 
+    """
     # Gets data based on datatype
     data = set()
     if (data_type == "images"):
@@ -28,6 +29,7 @@ def check_authorised(
     # Check if authorised
     if not(data['public']) and not(data['username'] == username):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to interact with {name}")
+    """
 
 # CREATE
 def create_images_data(
@@ -122,7 +124,8 @@ def read_images_data(
                 "name": {"S": "images_" + name},
             },
         ).get("Item")
-        response.pop("qut-username")
+        if response is not None:
+            response.pop("qut-username")
         return response
     except ClientError as e:
         raise RuntimeError(f"Unexpected error: {e}")
