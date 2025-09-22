@@ -9,7 +9,7 @@ LOGIN_PASSWORD = os.getenv("LOGIN_PASSWORD", "")
 
 def interactive_auth():
     global user_1_auth, current_username
-    choice = input("Choose [S]ign up or [L]og in: ").strip().lower()
+    choice = input("Choose [S]ign up, [L]og in, or [U]se env credentials to login: ").strip().lower()
 
     if choice.startswith("s"):
         username = input("Enter username: ").strip()
@@ -41,9 +41,10 @@ def interactive_auth():
         return True
 
     else:  # login
+        # use env credentials to login if choice doesn't start with l
         username = LOGIN_USERNAME
         password = LOGIN_PASSWORD
-        if (username == "") or (password == ""):
+        if choice.startswith("l"):
             username = input("Enter username: ").strip()
             password = input("Enter password: ")
         current_username = username
@@ -56,6 +57,8 @@ def interactive_auth():
         ptc.user_1_auth = user_1_auth
         print("Auth header set.")
         return True
+        
+
 
 # ---------------------------
 # Menu
@@ -91,7 +94,7 @@ def main():
         elif choice == "3":
             ptc.get_all_images()
         elif choice == "4":
-            ptc.convert_to_gif(f"{current_username}_hummingbird_images".lower(), "hummingbird_gif")
+            ptc.convert_to_gif(images_name=f"{current_username}_hummingbird".lower(), gif_name="hummingbird")
         elif choice == "5":
             ptc.get_all_gifs(1, False)
         elif choice == "6":

@@ -182,9 +182,9 @@ async def convert_to_gif(
 
     # Make gif
     frames = []
-    for file_name in images_data["file_names"]:
+    for file_name in images_data["file_names"]["L"]:
         with tempfile.TemporaryFile(mode="wb+") as image_dl:
-            s3.download_fileobj('a2-11', file_name, image_dl)
+            s3.download_fileobj('a2-11', file_name['S'], image_dl)
             image = Image.open(image_dl)
             if not(width == 0) and not(height == 0):
                 image = image.resize(size=(width, height))
@@ -249,9 +249,11 @@ async def get_gif_data(
     Returns:
         dict: Metadata related to the gif
     """
-    check_exists(name, data_type="gif")
+    gif_data = read_gif_data(name)
+    if (gif_data is None):
+        raise doesNotExistException
     check_authorised(name, data_type="gif", username=user['username'])
-    return JSONResponse(content=read_gif_data(name))
+    return JSONResponse(content=gif_data)
 
 async def delete_gif(
     name: str,
@@ -269,7 +271,10 @@ async def delete_gif(
     Returns:
         str: Success response message
     """
-    check_exists(name, data_type="gif")
+    gif_data = read_gif_data(name)
+    if (gif_data is None):
+        raise doesNotExistException
+    
     check_authorised(name, data_type="gif", username=user['username'])
     
     # Delete metadata
@@ -297,7 +302,10 @@ async def download_gif(
     Returns:
         file: The specified gif in file form if no exception is raised
     """
-    check_exists(name, data_type="gif")
+    gif_data = read_gif_data(name)
+    if (gif_data is None):
+        raise doesNotExistException
+    
     check_authorised(name, data_type="gif", username=user['username'])
 
     file_name = name + ".gif"
@@ -330,8 +338,11 @@ async def upload_to_GIPHY(
     Returns:
         dict: The response message from GIPHY if authorised
     """
-    #check_exists(name, data_type="gif")
-    #check_authorised(name, data_type="gif", username=user['username'])
+    gif_data = read_gif_data(name)
+    if (gif_data is None):
+        raise doesNotExistException
+    
+    check_authorised(name, data_type="gif", username=user['username'])
 
     giphy_api_key = get_secret("A2_Group11-GIPHY")["GIPHY_API"]
 

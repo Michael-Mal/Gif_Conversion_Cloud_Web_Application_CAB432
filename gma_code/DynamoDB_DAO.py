@@ -17,19 +17,17 @@ def check_authorised(
     username: str
 ):
     """Raises a HTTPException if not authorised"""
-
-    """
     # Gets data based on datatype
     data = set()
     if (data_type == "images"):
         data = read_images_data(name)
     else:
-        data = gif_data[name]
+        data = read_gif_data(name)
 
     # Check if authorised
-    if not(data['public']) and not(data['username'] == username):
+    if not(data['public']['BOOL']) and not(data['username']['S'] == username):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to interact with {name}")
-    """
+    
 
 # CREATE
 def create_images_data(
@@ -118,7 +116,7 @@ def read_images_data(
 ):
     try:
         response = dynamodb.get_item(
-            TableName='a2-11',
+            TableName=table_name,
             Key={
                 "qut-username": {"S": qut_user},
                 "name": {"S": "images_" + name},
@@ -161,12 +159,12 @@ def create_gif_data(
                 "name": {"S": "gif_" + gif_name},
                 "username": {"S": username},
                 "public": {"BOOL": public},
-                "images_name": images_name,
-                "width": width,
-                "height": height,
-                "duration": duration,
-                "loop": loop,
-                "downloads": 0
+                "images_name": {"S": images_name},
+                "width": {"N": str(width)},
+                "height": {"N": str(height)},
+                "duration": {"N": str(duration)},
+                "loop": {"N": str(loop)},
+                "downloads": {"N": "0"}
             }
 
     try:
@@ -223,54 +221,74 @@ def read_all_gif_data(
                 gif_list_p.append(gif)
     gif_list = gif_list_p
 
-    gifs = {}
-    for gif in gif_data.keys():
-        if (username == ""):
-            # Get public images
-            if gif_data[gif]['public'] == True:
-                gifs[gif] = gif_data[gif]
-        else:
-            # Get user-made images
-            if gif_data[gif]['username'] == username:
-                gifs[gif] = gif_data[gif]
-
     # Pagination
     if not(limit == 0):
-        all_items = list(gifs.items())
         skip = (page * limit) - limit
-        paginated_items = all_items[skip: skip + limit]
-        gifs = dict(paginated_items)
+        gif_list = gif_list[skip: skip + limit]
 
     # Filtering by image name
     if not(filter_by_images == ""):
         gifs_to_remove = []
-        for gif_name in gifs.keys():
-            if not(gifs[gif_name]["images_name"] == filter_by_images):
-                gifs_to_remove.append(gif_name)
-        for gif_name in gifs_to_remove:
-            gifs.pop(gif_name)
+        for gif in gif_list:
+            if not(gif["images_name"]['S'] == filter_by_images):
+                gifs_to_remove.append(gif)
+        for gif in gifs_to_remove:
+            gif_list.remove(gif)
 
     # Sorting
     if not(sort_by_field == ""):
-        gifs = sorted(gifs.items(), key=lambda item: item[1][sort_by_field], reverse=sort_descending)
+        gif_list = sorted(gif_list, key=lambda item: item[sort_by_field]['S'], reverse=sort_descending)
 
-    return gifs
+    return gif_list
 
 # READ FROM NAME
 def read_gif_data(
     name: str
 ):
-    return gif_data[name]
-    # Returns exception if not in gif_data
+    try:
+        response = dynamodb.get_item(
+            TableName=table_name,
+            Key={
+                "qut-username": {"S": qut_user},
+                "name": {"S": "gif_" + name},
+            },
+        ).get("Item")
+        if response is not None:
+            response.pop("qut-username")
+        return response
+    except ClientError as e:
+        raise RuntimeError(f"Unexpected error: {e}")
 
 # UPDATE
 def increment_gif_downloads(
     name: str
 ):
-    gif_data[name]["downloads"] = gif_data[name]["downloads"] + 1
+    try:
+        response = dynamodb.update_item(
+            TableName=table_name,
+            Key={
+                "qut-username": {"S": qut_user},
+                "name": {"S": "gif_" + name},
+            },
+            UpdateExpression="SET downloads = downloads + :one",
+            ExpressionAttributeValues={
+                ":one": {"N": "1"}
+            }
+        )
+    except ClientError as e:
+        raise RuntimeError(f"Unexpected error: {e}")
 
 # DELETE
 def delete_gif_data(
     name: str
 ):
-    gif_data.pop(name)
+    try:
+        dynamodb.delete_item(
+            TableName=table_name,
+            Key={
+                "qut-username": {"S": qut_user},
+                "name": {"S": "gif_" + name},
+            }
+        )
+    except ClientError as e:
+        raise RuntimeError(f"Unexpected error: {e}")
