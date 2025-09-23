@@ -2,14 +2,12 @@ from fastapi import HTTPException
 import boto3
 from botocore.exceptions import ClientError
 import os
+import time
 
 dynamodb = boto3.client("dynamodb", region_name='ap-southeast-2')
 qut_user = "n11963131@qut.edu.au"
 table_name = 'a2-11'
 DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"
-
-#images_data = {}
-gif_data = {}
 
 def check_authorised(
     name: str,
@@ -45,7 +43,8 @@ def create_images_data(
                 "name": {"S": "images_" + name},
                 "username": {"S": username},
                 "public": {"BOOL": public},
-                "file_names": {"L": file_names_w_attr}
+                "file_names": {"L": file_names_w_attr},
+                "time_created": {"N": str(int(time.time()))}
             }
 
     try:
@@ -72,6 +71,7 @@ def create_images_data(
 
 # READ ALL
 def read_all_images_data(
+    ignore_restrictions: bool = False,  # never expose this to the API
     username: str = "",
     limit: int = 0,
     page: int = 1
@@ -88,9 +88,15 @@ def read_all_images_data(
     except ClientError as e:
         raise RuntimeError(f"Unexpected error: {e}")
 
-    images_list_p = []
     for images in images_list:
         images.pop("qut-username")
+    
+    if ignore_restrictions:
+        # Return an unmodified, unfiltered set of images data for use internally
+        return images_list
+
+    images_list_p = []
+    for images in images_list:
         if (username == ""):
             # Get public images
             if images['public']['BOOL'] == True:
@@ -164,7 +170,8 @@ def create_gif_data(
                 "height": {"N": str(height)},
                 "duration": {"N": str(duration)},
                 "loop": {"N": str(loop)},
-                "downloads": {"N": "0"}
+                "downloads": {"N": "0"},
+                "time_created": {"N": str(int(time.time()))}
             }
 
     try:
@@ -190,12 +197,13 @@ def create_gif_data(
 
 # READ ALL
 def read_all_gif_data(
+    ignore_restrictions: bool = False,  # never expose this to the API
     username: str = "",
     limit: int = 0,
     page: int = 1,
     filter_by_images: str = "",
     sort_by_field: str = "",
-    sort_descending: bool = False
+    sort_descending: bool = False,
 ):
     gif_list = []
     try:
@@ -208,9 +216,15 @@ def read_all_gif_data(
     except ClientError as e:
         raise RuntimeError(f"Unexpected error: {e}")
 
-    gif_list_p = []
     for gif in gif_list:
         gif.pop("qut-username")
+
+    if ignore_restrictions:
+        # Return an unmodified, unfiltered set of gif data for use internally
+        return gif_list
+
+    gif_list_p = []
+    for gif in gif_list:
         if (username == ""):
             # Get public gifs
             if gif['public']['BOOL'] == True:
