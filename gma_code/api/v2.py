@@ -6,7 +6,7 @@ import shutil
 from PIL import Image
 from typing import Optional
 from gma_code.auth import authenticate_token
-from gma_code.DynamoDB_DAO import *
+from gma_code.DAO.DynamoDB import *
 import requests
 import shutil
 
@@ -63,7 +63,7 @@ async def upload_images(
         response_msg.append(image.filename)
 
     #Add to metadata
-    create_images_data(name, user['username'], public)
+    create_images(name, user['username'], public)
 
     return JSONResponse(content=response_msg)
 
@@ -85,7 +85,7 @@ async def get_all_images_data(
     Returns:
         dict: Metadata related to the images
     """
-    data = read_all_images_data(user['username'], public=public, limit=limit, page=page)
+    data = read_all_images(user['username'], public=public, limit=limit, page=page)
     return JSONResponse(content=data)
 
 async def get_images_data(
@@ -107,7 +107,7 @@ async def get_images_data(
     if not(check_authorised(name, "images", user['username'])):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to read data related to {name}")
 
-    return JSONResponse(content=read_images_data(name))
+    return JSONResponse(content=read_images(name))
 
 async def delete_images(
     name: str,
@@ -130,7 +130,7 @@ async def delete_images(
         raise HTTPException(status_code=403, detail=f"You are unauthorised to delete {name}")
 
     shutil.rmtree("uns_data/images/" + name)
-    delete_images_data(name)
+    delete_images(name)
 
     return JSONResponse(content=f"Successfully deleted {name}")
 
@@ -165,7 +165,7 @@ async def convert_to_gif(
     
     
     try:
-        read_images_data(images_name)
+        read_images(images_name)
     except KeyError:
             raise HTTPException(status_code=400, detail=f"{images_name} does not exist")
 
@@ -194,7 +194,7 @@ async def convert_to_gif(
     frame_one.save(gif_file_path, format="GIF", append_images=frames, save_all=True, duration=duration, loop=loop)
     
     #Add to metadata
-    create_gif_data(gif_name, user['username'], public, images_name, width, height, duration, loop)
+    create_gif(gif_name, user['username'], public, images_name, width, height, duration, loop)
 
     return JSONResponse(content=f"Successfully converted {gif_name}")
 
@@ -223,7 +223,7 @@ async def get_all_gif_data(
     Returns:
         dict: Metadata related to the gifs
     """
-    data = read_all_gif_data(user['username'], public=public, limit=limit, page=page, 
+    data = read_all_gif(user['username'], public=public, limit=limit, page=page, 
                              filter_by_images=filter_by_images, sort_by_field=sort_by_field,
                              sort_descending=sort_descending)
     return JSONResponse(content=data)
@@ -247,7 +247,7 @@ async def get_gif_data(
     if not(check_authorised(name, "gif", user['username'])):
         raise HTTPException(status_code=403, detail=f"You are unauthorised to read data related to {name}")
 
-    return JSONResponse(content=read_gif_data(name))
+    return JSONResponse(content=read_gif(name))
 
 async def delete_gif(
     name: str,
@@ -269,7 +269,7 @@ async def delete_gif(
         raise HTTPException(status_code=403, detail=f"You are unauthorised to delete {name}")
 
     os.remove("uns_data/gifs/" + name + ".gif")
-    delete_gif_data(name)
+    delete_gif(name)
 
     return JSONResponse(content=f"Successfully deleted {name}")
 
@@ -291,7 +291,7 @@ async def download_gif(
     file_path = "uns_data/gifs/" + file_name
 
     try:
-        read_gif_data(name)
+        read_gif(name)
     except KeyError:
         raise HTTPException(status_code=400, detail=f"{name} does not exist")
     

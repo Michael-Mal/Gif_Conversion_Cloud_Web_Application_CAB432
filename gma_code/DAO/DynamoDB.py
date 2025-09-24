@@ -18,9 +18,9 @@ def check_authorised(
     # Gets data based on datatype
     data = set()
     if (data_type == "images"):
-        data = read_images_data(name)
+        data = read_images(name)
     else:
-        data = read_gif_data(name)
+        data = read_gif(name)
 
     # Check if authorised
     if not(data['public']['BOOL']) and not(data['username']['S'] == username):
@@ -28,7 +28,7 @@ def check_authorised(
     
 
 # CREATE
-def create_images_data(
+def create_images(
     name: str,
     username: str,
     public: bool,
@@ -70,7 +70,7 @@ def create_images_data(
 
 
 # READ ALL
-def read_all_images_data(
+def read_all_images(
     ignore_restrictions: bool = False,  # never expose this to the API
     username: str = "",
     limit: int = 0,
@@ -117,7 +117,7 @@ def read_all_images_data(
     return images_list
 
 # READ FROM NAME
-def read_images_data(
+def read_images(
     name: str
 ):
     try:
@@ -135,7 +135,7 @@ def read_images_data(
         raise RuntimeError(f"Unexpected error: {e}")
 
 # DELETE
-def delete_images_data(
+def delete_images(
     name: str
 ):
     try:
@@ -150,7 +150,7 @@ def delete_images_data(
         raise RuntimeError(f"Unexpected error: {e}")
 
 # CREATE
-def create_gif_data(
+def create_gif(
     gif_name: str,
     username: str,
     public: bool,
@@ -196,7 +196,7 @@ def create_gif_data(
             raise RuntimeError(f"Unexpected error: {e}")
 
 # READ ALL
-def read_all_gif_data(
+def read_all_gif(
     ignore_restrictions: bool = False,  # never expose this to the API
     username: str = "",
     limit: int = 0,
@@ -256,7 +256,7 @@ def read_all_gif_data(
     return gif_list
 
 # READ FROM NAME
-def read_gif_data(
+def read_gif(
     name: str
 ):
     try:
@@ -293,7 +293,7 @@ def increment_gif_downloads(
         raise RuntimeError(f"Unexpected error: {e}")
 
 # DELETE
-def delete_gif_data(
+def delete_gif(
     name: str
 ):
     try:

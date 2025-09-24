@@ -37,7 +37,7 @@ def interactive_auth():
             return False
         user_1_auth = {"Authorization": f"Bearer {tokens['AccessToken']}"}
         ptc.user_1_auth = user_1_auth
-        print("Auth header set.")
+        print("Auth header set: " + user_1_auth["Authorization"])
         return True
 
     else:  # login
@@ -55,7 +55,7 @@ def interactive_auth():
             return False
         user_1_auth = {"Authorization": f"Bearer {tokens['AccessToken']}"}
         ptc.user_1_auth = user_1_auth
-        print("Auth header set.")
+        print("Auth header set: " + user_1_auth["Authorization"])
         return True
         
 
