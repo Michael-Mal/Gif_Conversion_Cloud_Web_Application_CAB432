@@ -5,7 +5,7 @@
 ### Michael
 - [x] Data Persistence Services: S3 (3 marks)
 - [x] Data Persistence Services: DynamoDB (3 marks)
-- [ ] Statelessness (3 marks)
+- [x] Statelessness (3 marks)
 
 ### Chris
 - [x] DNS with Route53 (2 marks)
