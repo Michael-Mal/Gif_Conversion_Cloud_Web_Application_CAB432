@@ -318,7 +318,7 @@ async def upload_to_GIPHY(
 
     giphy_api_key = dao.secrets_loader.get_secret("A2_Group11-GIPHY")["GIPHY_API"]
 
-    url = 'http://upload.giphy.com/v1/gifs'
+    url = dao.parameter_store.get_parameter("external_api_url")
 
     data = {"api_key": giphy_api_key,
                 "country_code": country_code,

@@ -3,8 +3,9 @@ import boto3
 from botocore.exceptions import ClientError
 import os
 import time
+from gma_code.dao.parameter_store import get_parameter
 
-dynamodb = boto3.client("dynamodb", region_name='ap-southeast-2')
+dynamodb = boto3.client("dynamodb", region_name=get_parameter("aws_region"))
 qut_user = "n11963131@qut.edu.au"
 table_name = 'a2-11'
 DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"

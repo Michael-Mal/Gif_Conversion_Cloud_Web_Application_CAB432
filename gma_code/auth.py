@@ -1,11 +1,9 @@
-# This code has been repurposed from the Week 4 JSON Web Token Practical found at 
-# https://canvas.qut.edu.au/courses/20367/pages/practical-authentication-and-sessions-in-fastapi-with-json-web-tokens-python?module_item_id=2063599
-# , specifically the sample FastAPI app that can be downloaded from https://canvas.qut.edu.au/courses/20367/files/6717519/download
 from botocore.exceptions import ClientError
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
 from fastapi import HTTPException, Depends, Header, Form
 from gma_code.dao.secrets_loader import get_secret
+from gma_code.dao.parameter_store import get_parameter
 from pydantic import BaseModel
 import hmac, hashlib, base64, jwt
 import boto3
@@ -53,7 +51,7 @@ class LoginIn(BaseModel):
 def signup(username: str = Form(...), 
            email: str = Form(...), 
            password: str = Form(...)):
-    client = boto3.client("cognito-idp", region_name="ap-southeast-2")
+    client = boto3.client("cognito-idp", region_name=get_parameter("aws_region"))
     try:
         response = client.sign_up(
             ClientId=client_id,
@@ -78,7 +76,7 @@ def signup(username: str = Form(...),
 
 def confirm_user(username: str = Form(...), 
                  code: str = Form(...)):
-    client = boto3.client("cognito-idp", region_name="ap-southeast-2")
+    client = boto3.client("cognito-idp", region_name=get_parameter("aws_region"))
     try:
         return client.confirm_sign_up(
             ClientId=client_id,
@@ -97,7 +95,7 @@ def confirm_user(username: str = Form(...),
 
 def authenticate(username: str = Form(...), 
                  password: str = Form(...)):
-    client = boto3.client("cognito-idp", region_name="ap-southeast-2")
+    client = boto3.client("cognito-idp", region_name=get_parameter("aws_region"))
     try:
         response = client.initiate_auth(
             AuthFlow="USER_PASSWORD_AUTH",

@@ -2,13 +2,13 @@ import boto3
 import json
 import os
 from botocore.exceptions import ClientError
-
+import gma_code.dao.parameter_store
 def get_secret(secret_name: str, region_name: str=None) -> dict:
     """
     Retrieve a secret from AWS Secret Manager
     Expects secret to be stored as JSON string.
     """
-    region = "ap-southeast-2"
+    region = gma_code.dao.parameter_store.get_parameter("aws_region")
     client = boto3.client("secretsmanager", region_name=region)
 
     try:
