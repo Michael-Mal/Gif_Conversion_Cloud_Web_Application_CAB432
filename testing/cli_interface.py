@@ -1,5 +1,5 @@
 from gma_code import auth
-from testing import Python_Testing_Collection as ptc
+from testing import python_testing_collection as ptc
 import os
 
 LOGIN_USERNAME = os.getenv("LOGIN_USERNAME", "")

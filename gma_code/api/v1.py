@@ -5,7 +5,7 @@ import shutil
 from PIL import Image
 from typing import Optional
 from gma_code.auth import authenticate_token
-from gma_code.DAO.DynamoDB import *
+from gma_code.dao.dynamo_db import *
 import shutil
 
 async def upload_images(

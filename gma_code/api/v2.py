@@ -1,12 +1,12 @@
 from fastapi import UploadFile, Form, HTTPException, Depends, Path
 from fastapi.responses import JSONResponse, FileResponse
-from gma_code.secrets_loader import get_secret
+from gma_code.dao.secrets_loader import get_secret
 import os
 import shutil
 from PIL import Image
 from typing import Optional
 from gma_code.auth import authenticate_token
-from gma_code.DAO.DynamoDB import *
+from gma_code.dao.dynamo_db import *
 import requests
 import shutil
 

@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
 from fastapi import HTTPException, Depends, Header, Form
-from gma_code.secrets_loader import get_secret
+from gma_code.dao.secrets_loader import get_secret
 from pydantic import BaseModel
 import hmac, hashlib, base64, jwt
 import boto3

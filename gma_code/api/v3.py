@@ -1,14 +1,13 @@
 from fastapi                 import UploadFile, Form, HTTPException, Depends, Path
 from fastapi.responses       import JSONResponse, FileResponse
-from gma_code.secrets_loader import get_secret
 from PIL                     import Image
 from typing                  import Optional
 from gma_code.auth           import authenticate_token
-import gma_code.DAO as DAO
+import gma_code.dao as dao
 import requests
 import tempfile
 
-doesNotExistException = HTTPException(status_code=404, detail="The requested item cannot be found")
+doesNotExistError = HTTPException(status_code=404, detail="The requested item cannot be found")
 
 async def upload_images(
     name: str,
@@ -34,7 +33,7 @@ async def upload_images(
     if not(public):
         name = user['username'] + "_" + name
 
-    if (DAO.DynamoDB.read_images(name) is not None) and not (DAO.DynamoDB.DEV_MODE):
+    if (dao.dynamo_db.read_images(name) is not None) and not (dao.dynamo_db.DEV_MODE):
         raise HTTPException(status_code=400, detail=f"{name} already exists")
 
     # Generate the filenames
@@ -44,11 +43,11 @@ async def upload_images(
         file_names.append(name + "_" + str(i) + "." + file_type)
 
     # Add to metadata
-    DAO.DynamoDB.create_images(name, user['username'], public, file_names)
-    images_data = DAO.DynamoDB.read_images(name)
+    dao.dynamo_db.create_images(name, user['username'], public, file_names)
+    images_data = dao.dynamo_db.read_images(name)
 
     # Upload to S3
-    DAO.S3.create_images(images=images, file_names=
+    dao.s3.create_images(images=images, file_names=
                         [file_name['S'] for file_name in images_data["file_names"]["L"]])
     
     return JSONResponse(status_code=201, content=images_data)
@@ -75,7 +74,7 @@ async def get_all_images_data(
     if not(public):
         # Only get user-made images
         username = user['username']
-    data = DAO.DynamoDB.read_all_images(username=username, limit=limit, page=page)
+    data = dao.dynamo_db.read_all_images(username=username, limit=limit, page=page)
     return JSONResponse(content=data)
 
 async def get_images_data(
@@ -95,10 +94,10 @@ async def get_images_data(
     Returns:
         dict: Metadata related to the images
     """
-    images_data = DAO.DynamoDB.read_images(name)
+    images_data = dao.dynamo_db.read_images(name)
     if (images_data is None):
-        raise doesNotExistException
-    DAO.DynamoDB.check_authorised(name, data_type="images", username=user['username'])
+        raise doesNotExistError
+    dao.dynamo_db.check_authorised(name, data_type="images", username=user['username'])
     return JSONResponse(content=images_data)
 
 async def delete_images(
@@ -119,16 +118,16 @@ async def delete_images(
         str: Success response message
     """
 
-    images_data = DAO.DynamoDB.read_images(name)
+    images_data = dao.dynamo_db.read_images(name)
     if (images_data is None):
-        raise doesNotExistException
-    DAO.DynamoDB.check_authorised(name, data_type="images", username=user['username'])
+        raise doesNotExistError
+    dao.dynamo_db.check_authorised(name, data_type="images", username=user['username'])
 
     # Delete from S3
-    DAO.S3.delete_images(file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]])
+    dao.s3.delete_images(file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]])
 
     # Delete metadata
-    DAO.DynamoDB.delete_images(name)
+    dao.dynamo_db.delete_images(name)
     
     return JSONResponse(content=f"Successfully deleted {name}")
 
@@ -157,24 +156,24 @@ async def convert_to_gif(
     Returns:
         str: Confirmation message if no exception is raised
     """
-    images_data = DAO.DynamoDB.read_images(images_name)
+    images_data = dao.dynamo_db.read_images(images_name)
     if (images_data is None):
-        raise doesNotExistException
-    DAO.DynamoDB.check_authorised(images_name, data_type="images", username=user['username'])
+        raise doesNotExistError
+    dao.dynamo_db.check_authorised(images_name, data_type="images", username=user['username'])
 
     #Add user to name if private
     if not(public):
         gif_name = user['username'] + "_" + gif_name
     
     # Add to metadata
-    DAO.DynamoDB.create_gif(gif_name, user['username'], public, images_name, width, height, duration, loop)
+    dao.dynamo_db.create_gif(gif_name, user['username'], public, images_name, width, height, duration, loop)
 
     # Get images to convert
-    frames = DAO.S3.read_images(file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]],
+    frames = dao.s3.read_images(file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]],
                                 width=width, height=height)
 
     # Create and save gif to S3
-    DAO.S3.create_gif(name=gif_name, frames=frames, duration=duration, loop=loop)
+    dao.s3.create_gif(name=gif_name, frames=frames, duration=duration, loop=loop)
 
     return JSONResponse(status_code=201, content=f"Successfully converted {gif_name}")
 
@@ -207,7 +206,7 @@ async def get_all_gif_data(
     if not(public):
         # Only get user-made images
         username = user['username']
-    data = DAO.DynamoDB.read_all_gif(username=username, limit=limit, page=page, 
+    data = dao.dynamo_db.read_all_gif(username=username, limit=limit, page=page, 
                              filter_by_images=filter_by_images, sort_by_field=sort_by_field,
                              sort_descending=sort_descending)
     return JSONResponse(content=data)
@@ -228,10 +227,10 @@ async def get_gif_data(
     Returns:
         dict: Metadata related to the gif
     """
-    gif_data = DAO.DynamoDB.read_gif(name)
+    gif_data = dao.dynamo_db.read_gif(name)
     if (gif_data is None):
-        raise doesNotExistException
-    DAO.DynamoDB.check_authorised(name, data_type="gif", username=user['username'])
+        raise doesNotExistError
+    dao.dynamo_db.check_authorised(name, data_type="gif", username=user['username'])
     return JSONResponse(content=gif_data)
 
 async def delete_gif(
@@ -250,17 +249,17 @@ async def delete_gif(
     Returns:
         str: Success response message
     """
-    gif_data = DAO.DynamoDB.read_gif(name)
+    gif_data = dao.dynamo_db.read_gif(name)
     if (gif_data is None):
-        raise doesNotExistException
+        raise doesNotExistError
     
-    DAO.DynamoDB.check_authorised(name, data_type="gif", username=user['username'])
+    dao.dynamo_db.check_authorised(name, data_type="gif", username=user['username'])
     
     # Delete metadata
-    DAO.DynamoDB.delete_gif(name)
+    dao.dynamo_db.delete_gif(name)
 
     # Delete from S3
-    DAO.S3.delete_gif(name)
+    dao.s3.delete_gif(name)
 
     return JSONResponse(content=f"Successfully deleted {name}")
 
@@ -277,17 +276,17 @@ async def download_gif(
     Returns:
         file: The specified gif in file form if no exception is raised
     """
-    gif_data = DAO.DynamoDB.read_gif(name)
+    gif_data = dao.dynamo_db.read_gif(name)
     if (gif_data is None):
-        raise doesNotExistException
+        raise doesNotExistError
     
-    DAO.DynamoDB.check_authorised(name, data_type="gif", username=user['username'])
+    dao.dynamo_db.check_authorised(name, data_type="gif", username=user['username'])
 
-    DAO.DynamoDB.increment_gif_downloads(name)
+    dao.dynamo_db.increment_gif_downloads(name)
 
     # Download from s3
     with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as gif_dl:
-        DAO.S3.read_gif(name=name, file=gif_dl)
+        dao.s3.read_gif(name=name, file=gif_dl)
         gif_dl.flush()
         gif_dl.seek(0)
         return FileResponse(gif_dl.name, filename=name + ".gif", media_type='application/octet-stream')
@@ -311,13 +310,13 @@ async def upload_to_GIPHY(
     Returns:
         dict: The response message from GIPHY if authorised
     """
-    gif_data = DAO.DynamoDB.read_gif(name)
+    gif_data = dao.dynamo_db.read_gif(name)
     if (gif_data is None):
-        raise doesNotExistException
+        raise doesNotExistError
     
-    DAO.DynamoDB.check_authorised(name, data_type="gif", username=user['username'])
+    dao.dynamo_db.check_authorised(name, data_type="gif", username=user['username'])
 
-    giphy_api_key = get_secret("A2_Group11-GIPHY")["GIPHY_API"]
+    giphy_api_key = dao.secrets_loader.get_secret("A2_Group11-GIPHY")["GIPHY_API"]
 
     url = 'http://upload.giphy.com/v1/gifs'
 
@@ -330,7 +329,7 @@ async def upload_to_GIPHY(
 
     # Get file from S3
     with tempfile.TemporaryFile(mode="w+b") as gif_upl:
-        DAO.S3.read_gif(name=name, file=gif_upl)
+        dao.s3.read_gif(name=name, file=gif_upl)
         gif_upl.flush()
         gif_upl.seek(0)
         files = {"file": gif_upl}

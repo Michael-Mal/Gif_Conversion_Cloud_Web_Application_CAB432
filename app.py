@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from gma_code.routes import v1_router, v2_router, v3_router
-from gma_code.secrets_loader import get_secret
+from gma_code.dao.secrets_loader import get_secret
 
 
 app = FastAPI(
