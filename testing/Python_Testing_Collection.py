@@ -2,7 +2,7 @@ import requests
 import os
 
 
-API_HOST = os.getenv("API_HOST", "localhost") # Change Public DNS when needed
+API_HOST = os.getenv("API_HOST", "a2group11.cab432.com") # Change Public DNS when needed
 API_PORT = os.getenv("API_PORT", "3000")
 API_VER  = os.getenv("API_VER", "v3")
 

@@ -3,6 +3,7 @@ import gma_code.api.v1 as v1
 import gma_code.api.v2 as v2
 import gma_code.api.v3 as v3
 import gma_code.auth as auth
+import gma_code.mfa_auth as mfa_auth
 
 # --- Version 1 ---
 v1_router = APIRouter(prefix="/v1")
@@ -41,6 +42,10 @@ v3_router = APIRouter(prefix="/v3")
 v3_router.post("/auth/signup")(auth.signup)
 v3_router.post("/auth/confirm")(auth.confirm_user)
 v3_router.post("/auth/login")(auth.authenticate)
+
+v3_router.post("/auth/mfa/associate")(mfa_auth.associate_totp)
+v3_router.post("/auth/mfa/verify")(mfa_auth.verify_totp)
+v3_router.post("/auth/mfa/set-preferred")(mfa_auth.set_totp_preferred)
 
 # Images
 v3_router.post("/images/{name}/")(v3.upload_images)

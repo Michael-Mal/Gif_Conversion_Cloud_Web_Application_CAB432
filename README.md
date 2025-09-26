@@ -11,8 +11,9 @@
 ### Chris
 - [x] DNS with Route53 (2 marks)
 - [x] Secrets manager (2 marks)
-- [ ] Infrastructure as Code (3 marks)
+- [ ] Infrastructure as Code (3 marks) - uncompleted 
 - [x] Authentication with Cognito (3 marks)
+- [x] MFA with Cognito (2 marks)
 
 ## Helpful Info
 ### How to login to AWS

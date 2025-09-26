@@ -93,11 +93,10 @@ def confirm_user(username: str = Form(...),
 # --------------------
 
 
-def authenticate(username: str = Form(...), 
-                 password: str = Form(...)):
+def authenticate(username: str = Form(...), password: str = Form(...)):
     client = boto3.client("cognito-idp", region_name=get_parameter("aws_region"))
     try:
-        response = client.initiate_auth(
+        resp = client.initiate_auth(
             AuthFlow="USER_PASSWORD_AUTH",
             AuthParameters={
                 "USERNAME": username,
@@ -106,11 +105,44 @@ def authenticate(username: str = Form(...),
             },
             ClientId=client_id,
         )
-        tokens = response["AuthenticationResult"]
-        return tokens
+
+        if "AuthenticationResult" in resp:
+            return resp["AuthenticationResult"]
+
+        ch = resp.get("ChallengeName")
+        session = resp.get("Session")
+
+        if ch == "MFA_SETUP":
+            return {"status": "MFA_SETUP_REQUIRED", "session": session}
+        if ch == "SOFTWARE_TOKEN_MFA":
+            return {"status": "TOTP_REQUIRED", "session": session}
+
+        return {"status": "ERROR", "detail": f"Unhandled challenge: {ch}", "session": session}
+
     except Exception as e:
-        print(f"Error during authenticate: {e}")
-        return None
+        return {"status": "ERROR", "detail": str(e)}
+
+
+def respond_totp(session: str = Form(...),
+                 username: str = Form(...),
+                 code: str = Form(...)):
+    client = boto3.client("cognito-idp", region_name="ap-southeast-2")
+    try:
+        r = client.respond_to_auth_challenge(
+            ClientId=client_id,
+            ChallengeName="SOFTWARE_TOKEN_MFA",
+            Session=session,
+            ChallengeResponses={
+                "USERNAME": username,
+                "SOFTWARE_TOKEN_MFA_CODE": code,
+                "SECRET_HASH": secretHash(client_id, client_secret, username),
+            },
+        )
+        if "AuthenticationResult" in r:
+            return {"status": "OK", "tokens": r["AuthenticationResult"]}
+        raise HTTPException(status_code=400, detail="TOTP challenge not satisfied")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"TOTP challenge failed: {e}")
 
 # --------------------
 # authentication token
