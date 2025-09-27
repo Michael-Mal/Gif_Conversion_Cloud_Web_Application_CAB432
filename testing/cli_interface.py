@@ -1,5 +1,5 @@
 from gma_code import auth
-from testing import python_testing_collection as ptc
+from testing import Python_Testing_Collection as ptc
 from gma_code import mfa_auth
 import os, base64
 

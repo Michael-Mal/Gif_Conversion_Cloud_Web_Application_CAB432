@@ -1,7 +1,6 @@
 import io, base64
 from urllib.parse import quote
-from typing import Optional, Dict, Any
-
+from typing import Optional
 import boto3
 import qrcode
 from fastapi import HTTPException, Body
@@ -9,9 +8,6 @@ from fastapi import HTTPException, Body
 REGION = "ap-southeast-2"
 DEFAULT_ISSUER = "GifMakerApp"
 DEFAULT_LABEL  = "CognitoUser"
-
-
-# ----------------- internals -----------------
 
 def _cognito():
     return boto3.client("cognito-idp", region_name=REGION)
@@ -30,16 +26,19 @@ def _build_otpauth(secret: str, issuer: str, label: str) -> str:
         f"?secret={secret}&issuer={iss}&algorithm=SHA1&digits=6&period=30"
     )
 
-def _one_of(**kwargs) -> Dict[str, Any]:
-    """Ensure exactly one of the provided kwargs is truthy; return (key, value)."""
-    chosen = [(k, v) for k, v in kwargs.items() if v]
-    if len(chosen) != 1:
-        keys = ", ".join(kwargs.keys())
-        raise HTTPException(status_code=400, detail=f"Provide exactly one of: {keys}")
-    return dict([chosen[0]])
+def _pick_ctx(*, access_token: Optional[str], session: Optional[str]) -> tuple[str, str]:
+    """
+    Prefer 'session' when both are present (e.g., during MFA_SETUP_REQUIRED),
+    otherwise fall back to 'access_token'. Error only if neither provided.
+    """
+    if session:
+        return ("session", session)
+    if access_token:
+        return ("access_token", access_token)
+    from fastapi import HTTPException
+    raise HTTPException(status_code=400, detail="Provide session or access_token")
 
-
-# ----------------- public endpoints (works with one-line routes) -----------------
+# ----------------- public endpoints -----------------
 
 def associate_totp(
     access_token: Optional[str] = Body(None, embed=True),
@@ -49,34 +48,32 @@ def associate_totp(
 ):
     """
     Start TOTP setup. Accepts either:
-      - { "access_token": "<AccessToken>" }    # for OPTIONAL pools (user already signed in)
-      - { "session": "<Session>" }             # for MFA_SETUP challenge when pool is ON
+      - { "access_token": "<AccessToken>" }    # optional MFA pools
+      - { "session": "<Session>" }             # MFA_SETUP challenge
     Returns: { ok, secret, context, otpauth_uri, qrcode_png_base64, [session] }
     """
-    ctx = _one_of(access_token=access_token, session=session)
+    key, ctx = _pick_ctx(access_token=access_token, session=session)
     client = _cognito()
-
     try:
-        if "access_token" in ctx:
-            r = client.associate_software_token(AccessToken=ctx["access_token"])
+        if key == "access_token":
+            r = client.associate_software_token(AccessToken=ctx)
         else:
-            r = client.associate_software_token(Session=ctx["session"])
+            r = client.associate_software_token(Session=ctx)
 
-        secret  = r["SecretCode"]
-        session_out = r.get("Session", session)  # may echo/rotate only for session path
+        secret = r["SecretCode"]
+        session_out = r.get("Session", session)  # only present on session path
 
         otpauth = _build_otpauth(secret, issuer, label)
         return {
             "ok": True,
             "secret": secret,
-            "context": "access_token" if "access_token" in ctx else "session",
+            "context": key,  # "access_token" or "session"
             "otpauth_uri": otpauth,
             "qrcode_png_base64": _qr_png_b64(otpauth),
             **({"session": session_out} if session_out else {}),
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"AssociateSoftwareToken failed: {e}")
-
 
 def verify_totp(
     code: str                   = Body(...,  embed=True),
@@ -89,18 +86,13 @@ def verify_totp(
       - { "session": "<Session>", "code": "123456" }
     Returns: { ok, status, [session] }
     """
-    ctx = _one_of(access_token=access_token, session=session)
+    key, ctx = _pick_ctx(access_token=access_token, session=session)
     client = _cognito()
-
     try:
-        if "access_token" in ctx:
-            r = client.verify_software_token(
-                AccessToken=ctx["access_token"], UserCode=code, FriendlyDeviceName="TOTP"
-            )
+        if key == "access_token":
+            r = client.verify_software_token(AccessToken=ctx, UserCode=code, FriendlyDeviceName="TOTP")
         else:
-            r = client.verify_software_token(
-                Session=ctx["session"], UserCode=code, FriendlyDeviceName="TOTP"
-            )
+            r = client.verify_software_token(Session=ctx, UserCode=code, FriendlyDeviceName="TOTP")
 
         status = r.get("Status", "ERROR")
         return {
@@ -110,7 +102,6 @@ def verify_totp(
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"VerifySoftwareToken failed: {e}")
-
 
 def set_totp_preferred(
     access_token: str = Body(..., embed=True),
