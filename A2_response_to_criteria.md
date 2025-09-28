@@ -37,7 +37,7 @@ Overview
 ### Core - Second data persistence service
 
 - **AWS service name:**  DynamoDB
-- **What data is being stored?:** Metadata related to images and gifs 
+- **What data is being stored?:** Metadata related to images and gifs.
 - **Why is this service suited to this data?:** DynamoDB is a NoSQL database service, which means that it stores semi-structured data in the form of key-value pairs, perfect for metadata.
 - **Why is the other service used not suitable for this data?:** S3 is not suitable for storing structured data due to the fact that it only supports unstructured data.
 - **Table name:** `a2-11`
@@ -74,11 +74,11 @@ Overview
 
 ### Core - Statelessness
 
-- **What data is stored within your application that is not stored in cloud data services?:** [eg. intermediate video files that have been transcoded but not stabilised]
-- **Why is this data not considered persistent state?:** [eg. intermediate files can be recreated from source if they are lost]
-- **How does your application ensure data consistency if the app suddenly stops?:** [eg. journal used to record data transactions before they are done.  A separate task scans the journal and corrects problems on startup and once every 5 minutes afterwards. ]
+- **What data is stored within your application that is not stored in cloud data services?:** There is no exclusive data storage within the application other than during the times files or metadata are being processed and uploaded to their respective persistence services.
+- **Why is this data not considered persistent state?:** Any time a file is being processed (eg. when converting an image to a gif), the file is always taken from a persistant storage service which means the user can easily resend the request without any trouble.
+- **How does your application ensure data consistency if the app suddenly stops?:** The application utilises a garbage collection mechanism. Every minute, the app retrieves file metadata from DynamoDB (older than 30s) and then checks if the supposed files are actually stored in S3 (and deletes the data if not). This works because the metadata is always uploaded before the files.
 - **Relevant files:**
-    -
+    - `gma_code\gc.py`
 
 ### Graceful handling of persistent connections
 
@@ -126,10 +126,18 @@ Overview
 
 ### Parameter store
 
-- **Parameter names:** [eg. n1234567/base_url]
+- **Parameter names:**
+    - /a2/11/aws_region
+    - /a2/11/external_api_url
+    - /a2/11/qut_username
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    - `gma_code/dao/parameter_store.py`
+        - Parameters are used in:
+        - `gma_code/auth.py`
+        - `gma_code/api/v3.py`
+        - `gma_code/dao/dynamo_db.py`
+        - `gma_code/dao/secrets_loader`
 
 ### Secrets manager
 
@@ -137,9 +145,10 @@ Overview
 - **Video timestamp:**
 - **Relevant files:**
     - `gma_code/dao/secrets_loader.py`
-    - `app.py` - secrets used
-    - `gma_code/auth.py` - secrets used
-    - `gma_code/api/v3.py` - secrets used
+        - Secrets are used in:
+        - `app.py`
+        - `gma_code/auth.py` 
+        - `gma_code/api/v3.py`
 
 ### Infrastructure as code
 
