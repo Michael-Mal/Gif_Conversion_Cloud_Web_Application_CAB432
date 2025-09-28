@@ -127,9 +127,9 @@ Overview
 ### Parameter store
 
 - **Parameter names:**
-    - /a2/11/aws_region
-    - /a2/11/external_api_url
-    - /a2/11/qut_username
+    - `/a2/11/aws_region`
+    - `/a2/11/external_api_url`
+    - `/a2/11/qut_username`
 - **Video timestamp:** 3:37
 - **Relevant files:**
     - `gma_code/dao/parameter_store.py`
@@ -141,7 +141,10 @@ Overview
 
 ### Secrets manager
 
-- **Secrets names:** [eg. n1234567-youtube-api-key]
+- **Secrets names:**
+    - `A2_Group11-CognitoSecret`
+    - `A2_Group11-GIPHY`
+    - `A2_Group11-JWT_KEY`
 - **Video timestamp:** 4:28
 - **Relevant files:**
     - `gma_code/dao/secrets_loader.py`
