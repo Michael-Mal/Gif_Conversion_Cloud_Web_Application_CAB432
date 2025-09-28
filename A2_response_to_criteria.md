@@ -30,7 +30,7 @@ Overview
 - **Why is this service suited to this data?:** Files are typically best stored on blob storage services such as S3 due to their large size and unstructured nature.
 - **Why is the other service used not suitable for this data?:** DynamoDB is not suitable for storing files as it doesn't really support large file uploads, and only works best with semi-structured data.
 - **Bucket name:** `a2-11`
-- **Video timestamp:**
+- **Video timestamp:** 0:10
 - **Relevant files:**
     - `gma_code/dao/s3.py`
 
@@ -41,7 +41,7 @@ Overview
 - **Why is this service suited to this data?:** DynamoDB is a NoSQL database service, which means that it stores semi-structured data in the form of key-value pairs, perfect for metadata.
 - **Why is the other service used not suitable for this data?:** S3 is not suitable for storing structured data due to the fact that it only supports unstructured data.
 - **Table name:** `a2-11`
-- **Video timestamp:**
+- **Video timestamp:** 0:16
 - **Relevant files:**
     - `gma_code/dao/dynamo_db.py`
 
@@ -92,7 +92,7 @@ Overview
 
 - **User pool name:** A2-Group11
 - **How are authentication tokens handled by the client?:** On the client side, authentication tokens are handled by first obtaining one via the `authenticate` function. Which calls on Cognito's `InitiateAuth` and returns an `Authentication Result` that contains the AccessToken, IdToken and RefreshToken. The client then stores these in memory and attached the AuthenticationToken in the `Authorization: Bearer <token>` header on every API request. FastAPI then extracts that header on any requests and ensures the JWT signature is verified and the AccessToken hasn't expired.
-- **Video timestamp:**
+- **Video timestamp:** 1:08
 - **Relevant files:**
     - `gma_code/auth.py`
     - `gma_code/routes.py`
@@ -100,7 +100,7 @@ Overview
 ### Cognito multi-factor authentication
 
 - **What factors are used for authentication:** password, email code and Authenticator app (eg. Microsoft Authenticator)
-- **Video timestamp:**
+- **Video timestamp:** 2:05
 - **Relevant files:**
     - `gma_code/mfa_auth.py`
     - `gma_code/auth.py`
@@ -122,7 +122,7 @@ Overview
 ### Core - DNS with Route53
 
 - **Subdomain**:  a2group11.cab432.com
-- **Video timestamp:**
+- **Video timestamp:** 2:54
 
 ### Parameter store
 
@@ -130,7 +130,7 @@ Overview
     - /a2/11/aws_region
     - /a2/11/external_api_url
     - /a2/11/qut_username
-- **Video timestamp:**
+- **Video timestamp:** 3:37
 - **Relevant files:**
     - `gma_code/dao/parameter_store.py`
         - Parameters are used in:
@@ -142,7 +142,7 @@ Overview
 ### Secrets manager
 
 - **Secrets names:** [eg. n1234567-youtube-api-key]
-- **Video timestamp:**
+- **Video timestamp:** 4:28
 - **Relevant files:**
     - `gma_code/dao/secrets_loader.py`
         - Secrets are used in:
