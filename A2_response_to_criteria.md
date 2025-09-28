@@ -17,33 +17,33 @@ Overview
 - **Student number:** n11963131
 - **Partner name (if applicable):** Christopher Nicholson
 - **Partner Student number:** n11811749
-- **Application name:** GifMakerApplication
-- **Two line description:** I/We implemented this very cool app that does Foo, Bar and Baz.
-- **EC2 instance name or ID:**
+- **Application name:** GifMakerAPI
+- **Two line description:** We implemented an application that allows users to upload images and then convert them into customised gifs. Some other features include creating an account to make files private, retrieving metadata, and uploading gifs to GIPHY.
+- **EC2 instance name or ID:** i-09b477efc9b257957 (Group11-Assessment2)
 
 ------------------------------------------------
 
 ### Core - First data persistence service
 
-- **AWS service name:**  [eg. S3]
-- **What data is being stored?:** [eg video files]
-- **Why is this service suited to this data?:** [eg. large files are best suited to blob storage due to size restrictions on other services]
-- **Why is are the other services used not suitable for this data?:**
-- **Bucket/instance/table name:**
+- **AWS service name:**  S3
+- **What data is being stored?:** Images and gif files.
+- **Why is this service suited to this data?:** Files are typically best stored on blob storage services such as S3 due to their large size and unstructured nature.
+- **Why is the other service used not suitable for this data?:** DynamoDB is not suitable for storing files as it doesn't really support large file uploads, and only works best with semi-structured data.
+- **Bucket name:** `a2-11`
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    - `gma_code/dao/s3.py`
 
 ### Core - Second data persistence service
 
-- **AWS service name:**  [eg. DynamoDB]
-- **What data is being stored?:** 
-- **Why is this service suited to this data?:**
-- **Why is are the other services used not suitable for this data?:**
-- **Bucket/instance/table name:**
+- **AWS service name:**  DynamoDB
+- **What data is being stored?:** Metadata related to images and gifs 
+- **Why is this service suited to this data?:** DynamoDB is a NoSQL database service, which means that it stores semi-structured data in the form of key-value pairs, perfect for metadata.
+- **Why is the other service used not suitable for this data?:** S3 is not suitable for storing structured data due to the fact that it only supports unstructured data.
+- **Table name:** `a2-11`
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    - `gma_code/dao/dynamo_db.py`
 
 ### Third data service
 
@@ -94,16 +94,16 @@ Overview
 - **How are authentication tokens handled by the client?:** On the client side, authentication tokens are handled by first obtaining one via the `authenticate` function. Which calls on Cognito's `InitiateAuth` and returns an `Authentication Result` that contains the AccessToken, IdToken and RefreshToken. The client then stores these in memory and attached the AuthenticationToken in the `Authorization: Bearer <token>` header on every API request. FastAPI then extracts that header on any requests and ensures the JWT signature is verified and the AccessToken hasn't expired.
 - **Video timestamp:**
 - **Relevant files:**
-    - `auth.py`
-    - `routes.py`
+    - `gma_code/auth.py`
+    - `gma_code/routes.py`
 
 ### Cognito multi-factor authentication
 
 - **What factors are used for authentication:** password, email code and Authenticator app (eg. Microsoft Authenticator)
 - **Video timestamp:**
 - **Relevant files:**
-    - `mfa_auth.py`
-    - `auth.py`
+    - `gma_code/mfa_auth.py`
+    - `gma_code/auth.py`
 
 ### Cognito federated identities
 
@@ -136,10 +136,10 @@ Overview
 - **Secrets names:** [eg. n1234567-youtube-api-key]
 - **Video timestamp:**
 - **Relevant files:**
-    - `secrets_loader.py`
+    - `gma_code/dao/secrets_loader.py`
     - `app.py` - secrets used
-    - `auth.py` - secrets used
-    - `v3.py` - secrets used
+    - `gma_code/auth.py` - secrets used
+    - `gma_code/api/v3.py` - secrets used
 
 ### Infrastructure as code
 
