@@ -143,9 +143,10 @@ def menu():
     print("2) Upload load images")
     print("3) Get all images")
     print("4) Convert to GIF")
-    print("5) Get all GIFs")
-    print("6) Download gif (fixed name)")
-    print("7) Upload to GIPHY (fixed name)")
+    print("5) Convert to GIF repeatedly (for CPU load)")
+    print("6) Get all GIFs")
+    print("7) Download gif (fixed name)")
+    print("8) Upload to GIPHY (fixed name)")
     print("9) Exit")
     return input("Choose: ").strip()
 
@@ -169,10 +170,13 @@ def main():
         elif choice == "4":
             ptc.convert_to_gif(images_name=f"{current_username}_hummingbird".lower(), gif_name="hummingbird")
         elif choice == "5":
-            ptc.get_all_gifs(1, False)
+            for i in range(100):
+                ptc.convert_to_gif(images_name=f"{current_username}_load".lower(), gif_name="load_" + str(i))
         elif choice == "6":
-            ptc.download_gif()
+            ptc.get_all_gifs(1, False)
         elif choice == "7":
+            ptc.download_gif()
+        elif choice == "8":
             ptc.upload_to_GIPHY()
         elif choice == "9":
             print("Bye!")
