@@ -1,19 +1,12 @@
-# CAB432_A2
+# CAB432_A3
 
 ## Assigned Tasks
 
 ### Michael
-- [x] Data Persistence Services: S3 (3 marks)
-- [x] Data Persistence Services: DynamoDB (3 marks)
-- [x] Statelessness (3 marks)
-- [x] Parameter store (2 marks)
+- [ ] Microservices (3 marks)
 
 ### Chris
-- [x] DNS with Route53 (2 marks)
-- [x] Secrets manager (2 marks)
-- [ ] Infrastructure as Code (3 marks) - uncompleted 
-- [x] Authentication with Cognito (3 marks)
-- [x] MFA with Cognito (2 marks)
+- [ ] HTTPS (2 marks)
 
 ## Helpful Info
 ### How to login to AWS
