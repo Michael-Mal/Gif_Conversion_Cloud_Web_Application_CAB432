@@ -33,6 +33,7 @@ Overview
 - **Video timestamp:** 0:10
 - **Relevant files:**
     - `gma_code/dao/s3.py`
+    - Used by `gma_code/api/v3.py` among others
 
 ### Core - Second data persistence service
 
@@ -44,6 +45,7 @@ Overview
 - **Video timestamp:** 0:16
 - **Relevant files:**
     - `gma_code/dao/dynamo_db.py`
+    - Used by `gma_code/api/v3.py` among others
 
 ### Third data service
 
