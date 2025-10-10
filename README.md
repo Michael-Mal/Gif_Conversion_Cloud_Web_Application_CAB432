@@ -4,6 +4,7 @@
 
 ### Michael
 - [ ] Microservices (3 marks)
+- [ ] Load distribution (2 marks)
 
 ### Chris
 - [ ] HTTPS (2 marks)
