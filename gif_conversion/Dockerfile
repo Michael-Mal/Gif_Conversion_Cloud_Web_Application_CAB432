@@ -9,4 +9,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python3", "-m", "uvicorn", "app:app", "--host=0.0.0.0", "--port=3000"]
+CMD ["python3", "app", "--host=0.0.0.0", "--port=3000"]

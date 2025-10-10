@@ -8,3 +8,4 @@ boto3
 pydantic
 cryptography
 qrcode
+aioboto3

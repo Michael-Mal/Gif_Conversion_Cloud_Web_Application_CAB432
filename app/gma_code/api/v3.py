@@ -6,6 +6,8 @@ from gma_code.auth           import authenticate_token
 import gma_code.dao as dao
 import requests
 import tempfile
+import aioboto3
+import asyncio
 
 doesNotExistError = HTTPException(status_code=404, detail="The requested item cannot be found")
 
@@ -168,14 +170,51 @@ async def convert_to_gif(
     # Add to metadata
     dao.dynamo_db.create_gif(gif_name, user['username'], public, images_name, width, height, duration, loop)
 
+    # Request a gif conversion
+    session = aioboto3.Session()
+    message_attributes = {
+        'file_names': {
+            'StringValue': str([file_name['S'] for file_name in images_data["file_names"]["L"]]),
+            'DataType': 'String'
+            },
+        'width': {
+            'StringValue': str(width),
+            'DataType': 'Number'
+            }, 
+        'height': {
+            'StringValue': str(height),
+            'DataType': 'Number'
+            },
+        'duration': {
+            'StringValue': str(duration),
+            'DataType': 'Number'
+            }, 
+        'loop': {
+            'StringValue': str(loop),
+            'DataType': 'Number'
+            }
+    }
+    send_response = {}
+    async with session.client("sqs", region_name=dao.parameter_store.get_parameter("aws_region")) as sqs_client:
+        send_response = await sqs_client.send_message(
+            QueueUrl="https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11",
+            DelaySeconds=10,
+            MessageBody=gif_name,
+            MessageAttributes=message_attributes
+        )
+
     # Get images to convert
-    frames = dao.s3.read_images(file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]],
-                                width=width, height=height)
+    #frames = dao.s3.read_images(file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]],
+    #                            width=width, height=height)
 
     # Create and save gif to S3
-    dao.s3.create_gif(name=gif_name, frames=frames, duration=duration, loop=loop)
+    #dao.s3.create_gif(name=gif_name, frames=frames, duration=duration, loop=loop)
+    
+    response_message = f"Failed to send a request to convert the {gif_name}"
+    if send_response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+        response_message = f"Successfully sent a request to convert {gif_name}"
 
-    return JSONResponse(status_code=201, content=f"Successfully converted {gif_name}")
+    return JSONResponse(status_code=send_response["ResponseMetadata"]["HTTPStatusCode"], content=response_message)
 
 async def get_all_gif_data(
     user = Depends(authenticate_token),
