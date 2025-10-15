@@ -45,11 +45,11 @@ CLI profile name [CAB432-STUDENT-901444280953]: default
 
 #### Gif Conversion Microservice
 1. Create a new EC2 instance using the launch template 'A2_11'
-2. Create these files in `gif_conversion/`
+2. Create these files in a new directory `gif_conversion/`
     1. `app.py`
     2. `Dockerfile`
     3. `requirements.txt`
-    4. Everything in `gc_code/` (directories already created)
+    4. Everything in `gc_code/`
 3. Run `docker build -t gif_conversion .` in `gif_conversion/`
 4. Run `docker run --name gif_conversion gif_conversion`
 
