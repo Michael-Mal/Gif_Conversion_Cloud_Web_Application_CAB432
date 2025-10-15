@@ -33,6 +33,7 @@ CLI profile name [CAB432-STUDENT-901444280953]: default
 4. Change to 'cli_interface.py', and run file - follow prompts provided
 
 ### How to build the Docker Image on EC2
+#### Main App Microservice
 1. Create a new EC2 instance using the launch template 'A2_11'
 2. Create these files in `gifmakerapi/`
     1. `app.py`
@@ -40,9 +41,18 @@ CLI profile name [CAB432-STUDENT-901444280953]: default
     3. `requirements.txt`
     4. Everything in `gma_code/` (directories already created)
 3. Run `docker build -t gif-api .` in `gifmakerapi/`
-
-
 4. Run `docker run --name gif-api -p 3000:3000 gif-api`
+
+#### Gif Conversion Microservice
+#### Main App Microservice
+1. Create a new EC2 instance using the launch template 'A2_11'
+2. Create these files in `gif_conversion/`
+    1. `app.py`
+    2. `Dockerfile`
+    3. `requirements.txt`
+    4. Everything in `gc_code/` (directories already created)
+3. Run `docker build -t gif_conversion .` in `gif_conversion/`
+4. Run `docker run --name gif_conversion gif_conversion`
 
 ctrl + c to exit.
 
