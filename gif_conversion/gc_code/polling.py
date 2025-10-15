@@ -4,7 +4,7 @@ import gc_code.gif_conversion
 
 import ast
 
-sqs = boto3.client('sqs')
+sqs = boto3.client('sqs', region_name='ap-southeast-2')
 
 def begin_polling():
     while True:

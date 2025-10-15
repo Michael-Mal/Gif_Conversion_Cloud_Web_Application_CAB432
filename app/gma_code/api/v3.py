@@ -1,13 +1,11 @@
 from fastapi                 import UploadFile, Form, HTTPException, Depends, Path
 from fastapi.responses       import JSONResponse, FileResponse
-from PIL                     import Image
 from typing                  import Optional
 from gma_code.auth           import authenticate_token
 import gma_code.dao as dao
 import requests
 import tempfile
 import aioboto3
-import asyncio
 
 doesNotExistError = HTTPException(status_code=404, detail="The requested item cannot be found")
 
