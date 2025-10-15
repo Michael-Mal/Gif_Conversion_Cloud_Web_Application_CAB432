@@ -3,8 +3,8 @@
 ## Assigned Tasks
 
 ### Michael
-- [ ] Microservices (3 marks)
-- [ ] Load distribution (2 marks)
+- [X] Microservices (3 marks)
+- [X] Load distribution (2 marks)
 
 ### Chris
 - [ ] HTTPS (2 marks)
