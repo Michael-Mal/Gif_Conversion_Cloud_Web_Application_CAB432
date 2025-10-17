@@ -5,6 +5,7 @@
 ### Michael
 - [X] Microservices (3 marks)
 - [X] Load distribution (2 marks)
+- [ ] Dead letter queue (2 marks)
 
 ### Chris
 - [ ] HTTPS (2 marks)
