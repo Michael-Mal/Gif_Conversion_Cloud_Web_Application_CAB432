@@ -168,37 +168,6 @@ async def convert_to_gif(
     dao.dynamo_db.create_gif(gif_name, user['username'], public, images_name, width, height, duration, loop)
 
     # Request a gif conversion
-    # session = aioboto3.Session()
-    # message_attributes = {
-    #     'file_names': {
-    #         'StringValue': str([file_name['S'] for file_name in images_data["file_names"]["L"]]),
-    #         'DataType': 'String'
-    #         },
-    #     'width': {
-    #         'StringValue': str(width),
-    #         'DataType': 'Number'
-    #         }, 
-    #     'height': {
-    #         'StringValue': str(height),
-    #         'DataType': 'Number'
-    #         },
-    #     'duration': {
-    #         'StringValue': str(duration),
-    #         'DataType': 'Number'
-    #         }, 
-    #     'loop': {
-    #         'StringValue': str(loop),
-    #         'DataType': 'Number'
-    #         }
-    # }
-    # send_response = {}
-    # async with session.client("sqs", region_name=dao.parameter_store.get_parameter("aws_region")) as sqs_client:
-    #     send_response = await sqs_client.send_message(
-    #         QueueUrl="https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11",
-    #         DelaySeconds=10,
-    #         MessageBody=gif_name,
-    #         MessageAttributes=message_attributes
-    #     )
     sqs_response = dao.sqs.request_conversion(
         file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]],
         width=width,
