@@ -8,7 +8,8 @@
 - [ ] Dead letter queue (2 marks)
 
 ### Chris
-- [ ] HTTPS (2 marks)
+- [x] HTTPS (2 marks)
+- [x] Auto Scaling (3 marks)
 
 ## Helpful Info
 ### How to login to AWS
