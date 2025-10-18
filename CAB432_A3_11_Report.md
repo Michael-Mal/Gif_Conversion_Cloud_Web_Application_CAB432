@@ -7,8 +7,9 @@ author:
 
 # Application overview
 
-*Remove these instructions:  *
-*Give a brief (1 paragraph) overview of what your application does.*
+Our application uses a FastAPI backend that allows the user to upload multiple images, covert images to GIFs, retrieve
+data related to images and gifs along with downloading the gifs or uploading to GIPHY. The app has been containerised
+with Docker and deployed on AWS.
 
 # Application architecture
 
@@ -105,9 +106,9 @@ author:
 
 ## Project Core - HTTPS
 
-- **Domain name:**
-- **Certificate ID:**
-- **ALB/API Gateway name:**
+- **Domain name:** https://a2group11.cab432.com
+- **Certificate ID:** `6cf36afb-550e-47b8-bda3-4aa09997a4b1`
+- **ALB/API Gateway name:** Group11-gifmaker
 - **Video timestamp:**
 - **Relevant files:**
     -
