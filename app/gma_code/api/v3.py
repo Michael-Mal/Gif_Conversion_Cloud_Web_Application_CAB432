@@ -5,7 +5,6 @@ from gma_code.auth           import authenticate_token
 import gma_code.dao as dao
 import requests
 import tempfile
-import aioboto3
 
 doesNotExistError = HTTPException(status_code=404, detail="The requested item cannot be found")
 
@@ -169,50 +168,50 @@ async def convert_to_gif(
     dao.dynamo_db.create_gif(gif_name, user['username'], public, images_name, width, height, duration, loop)
 
     # Request a gif conversion
-    session = aioboto3.Session()
-    message_attributes = {
-        'file_names': {
-            'StringValue': str([file_name['S'] for file_name in images_data["file_names"]["L"]]),
-            'DataType': 'String'
-            },
-        'width': {
-            'StringValue': str(width),
-            'DataType': 'Number'
-            }, 
-        'height': {
-            'StringValue': str(height),
-            'DataType': 'Number'
-            },
-        'duration': {
-            'StringValue': str(duration),
-            'DataType': 'Number'
-            }, 
-        'loop': {
-            'StringValue': str(loop),
-            'DataType': 'Number'
-            }
-    }
-    send_response = {}
-    async with session.client("sqs", region_name=dao.parameter_store.get_parameter("aws_region")) as sqs_client:
-        send_response = await sqs_client.send_message(
-            QueueUrl="https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11",
-            DelaySeconds=10,
-            MessageBody=gif_name,
-            MessageAttributes=message_attributes
-        )
-
-    # Get images to convert
-    #frames = dao.s3.read_images(file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]],
-    #                            width=width, height=height)
-
-    # Create and save gif to S3
-    #dao.s3.create_gif(name=gif_name, frames=frames, duration=duration, loop=loop)
-    
+    # session = aioboto3.Session()
+    # message_attributes = {
+    #     'file_names': {
+    #         'StringValue': str([file_name['S'] for file_name in images_data["file_names"]["L"]]),
+    #         'DataType': 'String'
+    #         },
+    #     'width': {
+    #         'StringValue': str(width),
+    #         'DataType': 'Number'
+    #         }, 
+    #     'height': {
+    #         'StringValue': str(height),
+    #         'DataType': 'Number'
+    #         },
+    #     'duration': {
+    #         'StringValue': str(duration),
+    #         'DataType': 'Number'
+    #         }, 
+    #     'loop': {
+    #         'StringValue': str(loop),
+    #         'DataType': 'Number'
+    #         }
+    # }
+    # send_response = {}
+    # async with session.client("sqs", region_name=dao.parameter_store.get_parameter("aws_region")) as sqs_client:
+    #     send_response = await sqs_client.send_message(
+    #         QueueUrl="https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11",
+    #         DelaySeconds=10,
+    #         MessageBody=gif_name,
+    #         MessageAttributes=message_attributes
+    #     )
+    sqs_response = dao.sqs.request_conversion(
+        file_names=[file_name['S'] for file_name in images_data["file_names"]["L"]],
+        width=width,
+        height=height,
+        duration=duration,
+        loop=loop,
+        gif_name=gif_name
+    )
     response_message = f"Failed to send a request to convert the {gif_name}"
-    if send_response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+    if sqs_response["HTTPStatusCode"] == 200:
         response_message = f"Successfully sent a request to convert {gif_name}"
 
-    return JSONResponse(status_code=send_response["ResponseMetadata"]["HTTPStatusCode"], content=response_message)
+    return JSONResponse(status_code=sqs_response["HTTPStatusCode"], content=response_message)
 
 async def get_all_gif_data(
     user = Depends(authenticate_token),

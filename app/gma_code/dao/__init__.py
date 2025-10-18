@@ -1,1 +1,1 @@
-from . import dynamo_db, s3, secrets_loader, parameter_store
+from . import dynamo_db, s3, secrets_loader, parameter_store, sqs
