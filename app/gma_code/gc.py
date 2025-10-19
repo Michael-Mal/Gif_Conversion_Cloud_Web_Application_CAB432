@@ -4,11 +4,15 @@ import time
 import gma_code.dao as dao
 from botocore.exceptions import ClientError
 import tempfile
+from boto3 import client
+from gma_code.dao.parameter_store import get_parameter
 
 debug = False
 time_until_old = 30 # Seconds
+sqs = client('sqs', region_name=get_parameter("aws_region"))
+queue_url = "https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11-dlq"
 
-def start_garbage_collection(sleep: int = 60):
+def start_garbage_collection(sleep: int = 90):
     while True:
         current_time = int(time.time())
 
@@ -35,19 +39,26 @@ def start_garbage_collection(sleep: int = 60):
                         break
 
         # --- GIFS ---
-        for gif in dao.dynamo_db.read_all_gif(ignore_restrictions=True):
-            # Filter gifs to only include gifs created over 30s ago as per above
-            if (int(gif['time_created']['N']) < (current_time - time_until_old)):
-                gif_name = gif['name']['S'][4:]
-                try:
-                    with tempfile.TemporaryFile(mode="w+b") as gif_dl:
-                        dao.s3.read_gif(gif_name, gif_dl)
-                except ClientError as e:
-                    if e.response['Error']['Code'] == '404':
-                        # File does not exist, delete references to the gif
-                        dao.dynamo_db.delete_gif(gif_name)
-                        print("GarbageCollection: " + gif_name + " has been deleted due to a null file reference")
-                        break
+        # Check the DLQ for gif conversions that have failed twice
+        response = sqs.receive_message(
+            QueueUrl=queue_url,
+            MessageAttributeNames=['All'],
+            MaxNumberOfMessages = 1,
+            VisibilityTimeout = 60
+        )
+        try:
+            data = response['Messages'][0]
+            gif_name = data['Body']
+            dao.dynamo_db.delete_gif(gif_name)
+            sqs.delete_message(
+                    QueueUrl=queue_url,
+                    ReceiptHandle=data['ReceiptHandle']
+                )
+            print("GarbageCollection: " + gif_name + " has been deleted due to repeatedly failing conversion")
+
+        except KeyError as e:
+            # Nothing in DLQ
+            pass
         
         time.sleep(sleep)
         

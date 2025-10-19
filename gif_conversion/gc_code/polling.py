@@ -6,11 +6,12 @@ import ast
 
 sqs = boto3.client('sqs', region_name='ap-southeast-2')
 TEST_DLQ = os.getenv("TEST_DLQ", "false").lower() == "true"
+queue_url = "https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11"
 
 def begin_polling():
     while True:
         response = sqs.receive_message(
-            QueueUrl="https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11",
+            QueueUrl=queue_url,
             MessageAttributeNames=['All'],
             MaxNumberOfMessages = 1,
             VisibilityTimeout = 60
@@ -41,7 +42,7 @@ def begin_polling():
                 print(f"FINISHED POLL: Successfully converted {gif_name}")
                 
                 sqs.delete_message(
-                    QueueUrl="https://sqs.ap-southeast-2.amazonaws.com/901444280953/a3-11",
+                    QueueUrl=queue_url,
                     ReceiptHandle=data['ReceiptHandle']
                 )
 
