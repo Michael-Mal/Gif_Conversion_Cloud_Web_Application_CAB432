@@ -172,6 +172,27 @@ with Docker and deployed on AWS.
 
 # Security
 
+**Network Security**
+
+Traffic is managed through an Application Load Balancer (ALB) that terminates TLS at the edge using a valid ACM certificate. 
+Only ports 80 (for redirect) and 443 (HTTPS) are exposed publicly, while application traffic runs internally on port 3000.
+
+**Least Privilege** 
+
+To ensure once our application is published commercially that cyber breaches are prevented
+adapting least privilege principal will be crucial. This can be achieved via IAM policies 
+granting users, roles, and services with only the minimum permissions 
+necessary to perform their specific tasks, without any additional access
+
+**Secure by Design**
+
+To ensure the application is secure by design only required endpoints are exposed. Input validation is handled through FastAPI
+and Pydantic schemas, mitigating injection and parsing vulnerabilities. Container images are built once and deployed. 
+
+**Confidentiality**
+
+The application uses TLS encryption (HTTPS) through AWS ACM certificates to protect data in transit between users and the Application Load Balancer.
+Internally, traffic between the ALB and EC2 instances also flows within the VPC, reducing exposure to external networks.
 
 # Sustainability
 The choices we can make while creating our application along with deployment to improve sustainability at the software level include utilising a different language that isn't as energy intensive (REFERENCE). 
