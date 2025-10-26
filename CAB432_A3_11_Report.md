@@ -172,9 +172,43 @@ with Docker and deployed on AWS.
 
 # Security
 
+**Network Security**
+
+Traffic is managed through an Application Load Balancer (ALB) that terminates TLS at the edge using a valid ACM certificate. 
+Only ports 80 (for redirect) and 443 (HTTPS) are exposed publicly, while application traffic runs internally on port 3000.
+
+**Least Privilege** 
+
+To ensure once our application is published commercially that cyber breaches are prevented
+adapting least privilege principal will be crucial. This can be achieved via IAM policies 
+granting users, roles, and services with only the minimum permissions 
+necessary to perform their specific tasks, without any additional access
+
+**Secure by Design**
+
+To ensure the application is secure by design only required endpoints are exposed. Input validation is handled through FastAPI
+and Pydantic schemas, mitigating injection and parsing vulnerabilities. Container images are built once and deployed. 
+
+**Confidentiality**
+
+The application uses TLS encryption (HTTPS) through AWS ACM certificates to protect data in transit between users and the Application Load Balancer.
+Internally, traffic between the ALB and EC2 instances also flows within the VPC, reducing exposure to external networks.
 
 # Sustainability
+The choices we can make while creating our application along with deployment to improve sustainability at the software level include utilising a different language that isn't as energy intensive (REFERENCE). 
+We have Containerised our application with Docker and deploy via a Auto Scaling Group which ensures we only run what is required avoiding idle compute energy. We have optimised our build pipelines
+by building images and then reusing them through the ECR reducing redundant compilation and deployment energy. To increase sustainability in the future we could introduce in-memory caching to reduce repeated processing for identical requests.
+The use of S3 for file storage ensures any temporary files are cleaned up automatically, preventing the retainment of unused data.
 
+At a hardware level ensuring the correct sized EC2 instance avoids overprovisioning the CPU and memory resources. The implementation of Auto Scaling ensures that at any point in time 
+the required number of instances we have running is only what's required to ensure the CPU usage stays at <= 80%. Thus, scaling down in during low periods of traffic. 
+A change that could be conducted in the future is to utilise AWS Graviton which are ARM based instances. These instances are more energy-efficient and lower both costs and carbon footprint.
+
+At a data centre level if our application was to continue to grow and require more resources we can utilise location shifting by deploying workloads to data centres where the climate is cooler as 
+Summer in Australia would increase artificial cooling costs
+
+
+At a resource level a big change that can be implemented is utilising a more green region as AWS Sydney location is one of the highest for CPU emissions. The fallback, however, is potential latency of having to use overseas servers.
 
 # Bibliography
 
