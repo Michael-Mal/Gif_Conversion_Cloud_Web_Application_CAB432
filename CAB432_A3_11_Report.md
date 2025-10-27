@@ -16,8 +16,6 @@ with Docker and deployed on AWS.
 <img width="972" height="621" alt="CAB432_A3_Architecture_Diagram drawio" src="https://github.com/user-attachments/assets/53a28f61-3bff-45e9-9e92-8a3985f89bcf" />
 
 *Briefly discuss the use of each service*
-*Example:
-* - S3: used to store user uploaded and transcoded video files, and video thumbnails*
 
 - API microservice: This microservice holds the core logic of our application and is responsible for handling public API requests.
 - Compute microservice: This microservice is used to convert user uploaded images to gifs (through automatic polling of an SQS queue).
@@ -28,6 +26,10 @@ with Docker and deployed on AWS.
 - Parameter store: used to store non-critical information such as the URL of the external API.
 - Secrets manager: used to store security-critical information such as the external API key.
 - SQS: holds information relating to requests to convert a gif. A dead-letter queue stores failed conversions.
+- Route 53: Routes user traffic via a registered domain to our API
+- AWS Private Certificate Authority: Provides us the private certificate to allow encrypted TLS communication, along with authenticating users.
+- Application Load Balancer: Distributes incoming traffic across multiple healthy EC2 instances increasing the availability of our application
+- Auto Scaling Group: Collection of ec2 instances that scales in and out depending on CPU demand ensuring dynamic scaling.
 
 ## Project Core - Microservices
 
@@ -42,8 +44,8 @@ with Docker and deployed on AWS.
 - **Second service functionality:** Gif conversion microservice
 - **Second service compute:**
 - **Second service source files:**
-  - Everything in `gif_conversion/` 
-
+  - Everything in `gif_conversion/`
+  
 - **Video timestamp:**
 
 
@@ -52,13 +54,11 @@ with Docker and deployed on AWS.
 - **Third service functionality:**
 - **Third service compute:**
 - **Third service source files:**
-  - 
 
 - **Fourth service functionality:**
 - **Fourth service compute:**
 - **Fourth service source files:**
-  - 
-
+  - .
 - **Video timestamp:**
 
 
@@ -67,7 +67,7 @@ with Docker and deployed on AWS.
 - **Service(s) deployed on Lambda:**
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 ## Project Additional - Container orchestration with ECS 
@@ -76,7 +76,7 @@ with Docker and deployed on AWS.
 - **Task definition names:**
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 ## Project Core - Load distribution
@@ -95,15 +95,15 @@ with Docker and deployed on AWS.
 - **Mechanism instance name:** [eg. n1234567-project-sqs]
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 ## Project Core - Autoscaling
 
-- **EC2 Auto-scale group or ECS Service name:**
+- **EC2 Auto-scale group or ECS Service name:** Group11-A3-Second & Group11-A3
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    - Nil relevant files as all done within AWS
 
 
 ## Project Additional - Custom scaling metric
@@ -113,7 +113,7 @@ with Docker and deployed on AWS.
 - **Rationale:** [discuss both small and large scales]
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 ## Project Core - HTTPS
@@ -123,7 +123,7 @@ with Docker and deployed on AWS.
 - **ALB/API Gateway name:** Group11-gifmaker
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    - Nil relevant files as all done within AWS
 
 
 ## Project Additional - Container orchestration features
@@ -132,7 +132,7 @@ with Docker and deployed on AWS.
 - **Second additional ECS feature:**
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 ## Project Additional - Infrastructure as Code
@@ -141,7 +141,7 @@ with Docker and deployed on AWS.
 - **Services deployed:** [eg. ALB, SQS, ....  Only Block 3 services need to be listed]
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 ## Project Additional - Dead letter queue
@@ -160,7 +160,7 @@ with Docker and deployed on AWS.
 - **Rationale for caching:**
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 ## Project Additional - Other (with prior permission only)
@@ -168,16 +168,23 @@ with Docker and deployed on AWS.
 - **Description:**
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    
 
 
 # Cost estimate
 
-*Remove these instructions:*
-*Include the public share link from the AWS cost calculator*
-*Include a summary of the total price  per month for each AWS service that you use*
-*eg:*
-*- EC2: 25.75*
+**Public Link:**https://calculator.aws/#/estimate?id=de06e3c8a7bca6f7423b5056e821f8a92e700bc9
+
+- EC2: $18.76
+- AWS Secrets Manager: $1.20
+- Amazon Route 53: $0.90
+- Amazon Cognito: $5.00
+- AWS Certificate Manager: Nil Monthly (Upfront Cost of $15.00)
+- Elastic Load Balancing: $25.41
+- Amazon Elastic Container Registry: $0.02
+- Amazon DynamoDB: $13.06
+- Amazon Simple Storage Service (S3): 0.26
+- AWS Systems Manager: Nil
 
 # Scaling up
 
