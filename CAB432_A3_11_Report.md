@@ -1,7 +1,7 @@
 ---
 title: "CAB432 Project Report"
 author:
-- "<The first partner's name> - n1234567"
+- "Michael Mallett - n11963131"
 - "<The second partner's name> - n1234568"
 ---
 
@@ -20,6 +20,15 @@ with Docker and deployed on AWS.
 *Example:
 * - S3: used to store user uploaded and transcoded video files, and video thumbnails*
 
+- API microservice: This microservice holds the core logic of our application and is responsible for handling API requests.
+- Compute microservice: This microservice is used to convert user uploaded images to gifs (through automatic polling of an SQS queue), and can be scaled when demand is high.
+- EC2: used as a virtual computer to run the above microservices.
+- ECR: used to store the Docker images that EC2 can run.
+- DynamoDB: used to store metadata related to images and gifs, such as the user who uploaded a set of images or how many times a gif has been downloaded.
+- S3: used to store raw image and gif files, organised by name prefixes.
+- Parameter store: used to store non-critical information such as the URL of the external API.
+- Secrets manager: used to store security-critical information such as the external API key.
+- SQS: holds information relating to requests to convert a gif. A dead-letter queue stores failed conversions.
 
 ## Project Core - Microservices
 
@@ -213,4 +222,5 @@ At a resource level a big change that can be implemented is utilising a more gre
 # Bibliography
 
 *Remove this section if not being used.*
+
 
