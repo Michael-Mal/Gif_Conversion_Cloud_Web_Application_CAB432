@@ -13,8 +13,7 @@ with Docker and deployed on AWS.
 
 # Application architecture
 
-*Remove these instructions:*
-*Your architecture diagram goes here*
+<img width="972" height="621" alt="CAB432_A3_Architecture_Diagram drawio" src="https://github.com/user-attachments/assets/53a28f61-3bff-45e9-9e92-8a3985f89bcf" />
 
 *Briefly discuss the use of each service*
 *Example:
@@ -226,6 +225,7 @@ At a resource level a big change that can be implemented is utilising a more gre
 # Bibliography
 
 *Remove this section if not being used.*
+
 
 
 
