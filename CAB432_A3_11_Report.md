@@ -20,7 +20,7 @@ with Docker and deployed on AWS.
 *Example:
 * - S3: used to store user uploaded and transcoded video files, and video thumbnails*
 
-- API microservice: This microservice holds the core logic of our application and is responsible for handling API requests.
+- API microservice: This microservice holds the core logic of our application and is responsible for handling public API requests.
 - Compute microservice: This microservice is used to convert user uploaded images to gifs (through automatic polling of an SQS queue).
 - EC2: used as a virtual computer to run the above microservices.
 - ECR: used to store the Docker images that EC2 can run.
@@ -32,15 +32,19 @@ with Docker and deployed on AWS.
 
 ## Project Core - Microservices
 
-- **First service functionality:** [eg. Public facing API server]
+- **First service functionality:** Public facing API server
 - **First service compute:** [eg. EC2/Lambda/ECS, instance ID/name]
 - **First service source files:**
   - [eg. source code filenames or directory]
+  - `app/app.py`
+  - `app/Dockerfile`
+  - `app/requirements.txt`
+  - Everything in `app/gma_code/`
 
-- **Second service functionality:** 
+- **Second service functionality:** Gif conversion microservice
 - **Second service compute:**
 - **Second service source files:**
-  - 
+  - Everything in `gif_conversion/` 
 
 - **Video timestamp:**
 
@@ -79,11 +83,12 @@ with Docker and deployed on AWS.
 
 ## Project Core - Load distribution
 
-- **Load distribution mechanism:** [eg. SQS, ALB,...]
-- **Mechanism instance name:** [eg. n1234567-project-alb]
+- **Load distribution mechanism:** SQS
+- **Mechanism instance name:** `a3-11`
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    - `app/gma_code/dao/sqs.py`
+    - `gif_conversion/gc_code/polling.py`
 
 
 ## Project Additional - Communication mechanisms
@@ -143,11 +148,11 @@ with Docker and deployed on AWS.
 
 ## Project Additional - Dead letter queue
 
-- **Technology used:** [eg. SQS, ...]
-- **Services deployed:** [eg. SQS, ....  Only Block 3 services need to be listed]
+- **Technology used:** SQS
+- **Services deployed:** SQS (queue name is `a3-11-dlq`)
 - **Video timestamp:**
 - **Relevant files:**
-    -
+    - `app/gma_code/gc.py`
 
 
 ## Project Additional - Edge Caching
@@ -222,6 +227,7 @@ At a resource level a big change that can be implemented is utilising a more gre
 # Bibliography
 
 *Remove this section if not being used.*
+
 
 
 
