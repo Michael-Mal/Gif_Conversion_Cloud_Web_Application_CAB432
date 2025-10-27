@@ -2,7 +2,7 @@
 title: "CAB432 Project Report"
 author:
 - "Michael Mallett - n11963131"
-- "<The second partner's name> - n1234568"
+- "Christopher Nicholson - n11811749"
 ---
 
 # Application overview
