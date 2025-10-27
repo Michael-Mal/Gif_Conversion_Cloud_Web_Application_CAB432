@@ -53,7 +53,7 @@ CLI profile name [CAB432-STUDENT-901444280953]: default
     3. `requirements.txt`
     4. Everything in `gc_code/`
 3. Run `docker build -t gif_conversion .` in `gif_conversion/`
-4. Run `docker run --name gif_conversion gif_conversion`
+4. Run `docker run --name gif_conversion -p 3000:3000 gif_conversion`
 
 ctrl + c to exit.
 
