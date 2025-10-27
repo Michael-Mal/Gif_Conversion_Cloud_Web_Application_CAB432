@@ -35,7 +35,6 @@ with Docker and deployed on AWS.
 - **First service functionality:** Public facing API server
 - **First service compute:** [eg. EC2/Lambda/ECS, instance ID/name]
 - **First service source files:**
-  - [eg. source code filenames or directory]
   - `app/app.py`
   - `app/Dockerfile`
   - `app/requirements.txt`
@@ -227,6 +226,7 @@ At a resource level a big change that can be implemented is utilising a more gre
 # Bibliography
 
 *Remove this section if not being used.*
+
 
 
 
