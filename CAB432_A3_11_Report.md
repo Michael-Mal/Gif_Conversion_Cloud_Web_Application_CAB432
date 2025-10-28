@@ -33,7 +33,7 @@ with Docker and deployed on AWS.
 ## Project Core - Microservices
 
 - **First service functionality:** Public facing API server
-- **First service compute:** [eg. EC2/Lambda/ECS, instance ID/name]
+- **First service compute:** EC2 `A3_11_Main_API`
 - **First service source files:**
   - `app/app.py`
   - `app/Dockerfile`
@@ -41,12 +41,11 @@ with Docker and deployed on AWS.
   - Everything in `app/gma_code/`
 
 - **Second service functionality:** Gif conversion microservice
-- **Second service compute:** A3_11_gif_conversion_
+- **Second service compute:** EC2 `A3_11_Gif_Conversion`
 - **Second service source files:**
   - Everything in `gif_conversion/`
   
-- **Video timestamp:**
-
+- **Video timestamp:** 0:05
 
 ## Project Additional - Additional microservices
 
@@ -82,7 +81,7 @@ with Docker and deployed on AWS.
 
 - **Load distribution mechanism:** SQS
 - **Mechanism instance name:** `a3-11`
-- **Video timestamp:**
+- **Video timestamp:** 0:40
 - **Relevant files:**
     - `app/gma_code/dao/sqs.py`
     - `gif_conversion/gc_code/polling.py`
@@ -100,7 +99,7 @@ with Docker and deployed on AWS.
 ## Project Core - Autoscaling
 
 - **EC2 Auto-scale group or ECS Service name:** Group11-A3-Second & Group11-A3
-- **Video timestamp:**
+- **Video timestamp:** 1:57
 - **Relevant files:**
     - Nil relevant files as all done within AWS
 
@@ -120,7 +119,7 @@ with Docker and deployed on AWS.
 - **Domain name:** https://a2group11.cab432.com
 - **Certificate ID:** `6cf36afb-550e-47b8-bda3-4aa09997a4b1`
 - **ALB/API Gateway name:** Group11-gifmaker
-- **Video timestamp:**
+- **Video timestamp:** 3:44
 - **Relevant files:**
     - Nil relevant files as all done within AWS
 
@@ -147,7 +146,7 @@ with Docker and deployed on AWS.
 
 - **Technology used:** SQS
 - **Services deployed:** SQS (queue name is `a3-11-dlq`)
-- **Video timestamp:**
+- **Video timestamp:** 1:00
 - **Relevant files:**
     - `app/gma_code/gc.py`
 
@@ -240,6 +239,7 @@ At a resource level a big change that can be implemented is utilising a more gre
 
 Pereira R., Couto M., Ribeiro F., Rua R., Cunha J., Fernandes J., Saraiva J (2021) ... Ranking programming languages by energy efficiency. Science of Computer Programming Volume 205(1).
 https://doi.org/10.1016/j.scico.2021.102609
+
 
 
 
