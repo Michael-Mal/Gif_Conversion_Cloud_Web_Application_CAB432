@@ -16,7 +16,6 @@ with Docker and deployed on AWS.
 <img width="972" height="621" alt="CAB432_A3_Architecture_Diagram drawio" src="https://github.com/user-attachments/assets/53a28f61-3bff-45e9-9e92-8a3985f89bcf" />
 
 *Briefly discuss the use of each service*
-
 - API microservice: This microservice holds the core logic of our application and is responsible for handling public API requests.
 - Compute microservice: This microservice is used to convert user uploaded images to gifs (through automatic polling of an SQS queue).
 - EC2: used as a virtual computer to run the above microservices.
@@ -173,7 +172,7 @@ with Docker and deployed on AWS.
 
 # Cost estimate
 
-**Public Link:**https://calculator.aws/#/estimate?id=de06e3c8a7bca6f7423b5056e821f8a92e700bc9
+**Public Link:** https://calculator.aws/#/estimate?id=de06e3c8a7bca6f7423b5056e821f8a92e700bc9
 
 - EC2: $18.76
 - AWS Secrets Manager: $1.20
