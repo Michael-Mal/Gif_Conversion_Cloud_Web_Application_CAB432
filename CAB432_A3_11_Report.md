@@ -41,7 +41,7 @@ with Docker and deployed on AWS.
   - Everything in `app/gma_code/`
 
 - **Second service functionality:** Gif conversion microservice
-- **Second service compute:**
+- **Second service compute:** A3_11_gif_conversion_
 - **Second service source files:**
   - Everything in `gif_conversion/`
   
@@ -195,7 +195,7 @@ To support so many users, it would be very inefficient to just continue to horiz
 
 **Load Distribution**
 
-Our current method of load balancing (using SQS) should still be effective in this scenario considering that SQS queue capacitiy is scaled automatically, however there may be some problems with task prioritisation if the compute instances fall behind in processing. In this case, changing the queue to First-In First-Out (FIFO) mode should mitigate this issue as it ensures tasks that are sent first are completed first, even if it reduces performance slightly. As mentioned in the previous section, a new method of load balancing would also be needed to effectively support the public-facing API server. The best solution for this would likely be an AWS application load balancer as it can handle HTTP requests natively.
+Our current method of load balancing (using SQS) should still be effective in this scenario considering that SQS queue capacitiy is scaled automatically, however there may be some problems with task prioritisation if the compute instances fall behind in processing. In this case, changing the queue to First-In First-Out (FIFO) mode should mitigate this issue as it ensures tasks that are sent first are completed first, even if it reduces performance slightly. As mentioned in the previous section, a new method of load balancing would also be needed to effectively support the public-facing API server. The best solution for this would likely be with an AWS application load balancer as it can handle API requests natively and direct traffic.
 
 # Security
 
@@ -223,24 +223,24 @@ Internally, traffic between the ALB and EC2 instances also flows within the VPC,
 
 # Sustainability
 The choices we can make while creating our application along with deployment to improve sustainability at the software level include utilising a different language that isn't as energy intensive (Pereira R., 2021). 
-We have Containerised our application with Docker and deploy via a Auto Scaling Group which ensures we only run what is required avoiding idle compute energy. We have optimised our build pipelines
+We have containerised our application with Docker and deploy via a Auto Scaling Group which ensures we only run what is required avoiding idle compute energy. We have optimised our build pipelines
 by building images and then reusing them through the ECR reducing redundant compilation and deployment energy. To increase sustainability in the future we could introduce in-memory caching to reduce repeated processing for identical requests.
 The use of S3 for file storage ensures any temporary files are cleaned up automatically, preventing the retainment of unused data.
 
-At a hardware level ensuring the correct sized EC2 instance avoids overprovisioning the CPU and memory resources. The implementation of Auto Scaling ensures that at any point in time 
-the required number of instances we have running is only what's required to ensure the CPU usage stays at <= 80%. Thus, scaling down in during low periods of traffic. 
+At a hardware level ensuring the correct sized EC2 instance avoids overprovisioning the CPU and memory resources. The implementation of auto scaling ensures that at any point in time 
+the required number of instances we have running is only what's required to ensure the CPU usage stays at >= 70%. Thus, scaling down in during low periods of traffic. 
 A change that could be conducted in the future is to utilise AWS Graviton which are ARM based instances. These instances are more energy-efficient and lower both costs and carbon footprint.
 
 At a data centre level if our application was to continue to grow and require more resources we can utilise location shifting by deploying workloads to data centres where the climate is cooler as 
-Summer in Australia would increase artificial cooling costs
+summer in Australia would increase artificial cooling costs.
 
-
-At a resource level a big change that can be implemented is utilising a more green region as AWS Sydney location is one of the highest for CPU emissions. The fallback, however, is potential latency of having to use overseas servers.
+At a resource level a big change that can be implemented is utilising a more green region as the AWS Sydney location is one of the highest for CPU emissions. The fallback, however, is potential latency of having to use overseas servers.
 
 # Bibliography
 
 Pereira R., Couto M., Ribeiro F., Rua R., Cunha J., Fernandes J., Saraiva J (2021) ... Ranking programming languages by energy efficiency. Science of Computer Programming Volume 205(1).
 https://doi.org/10.1016/j.scico.2021.102609
+
 
 
 
