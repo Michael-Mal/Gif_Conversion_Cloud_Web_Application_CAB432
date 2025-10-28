@@ -13,7 +13,7 @@ with Docker and deployed on AWS.
 
 # Application architecture
 
-<img width="972" height="621" alt="CAB432_A3_Architecture_Diagram drawio" src="https://github.com/user-attachments/assets/53a28f61-3bff-45e9-9e92-8a3985f89bcf" />
+<img width="975" height="641" alt="CAB432_A3_Architecture_Diagram_final(1)" src="https://github.com/user-attachments/assets/99eb8d5b-7417-4e7a-940e-050fa85b1f6b" />
 
 *Briefly discuss the use of each service*
 - API microservice: This microservice holds the core logic of our application and is responsible for handling public API requests.
@@ -231,6 +231,8 @@ At a resource level a big change that can be implemented is utilising a more gre
 # Bibliography
 
 *Remove this section if not being used.*
+
+
 
 
 
