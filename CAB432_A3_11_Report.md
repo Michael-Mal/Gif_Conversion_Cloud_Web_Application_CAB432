@@ -187,6 +187,15 @@ with Docker and deployed on AWS.
 
 # Scaling up
 
+If our application needed to be deployed to support up to 10000 concurrent users, there would be many changes needed to be made, particularly relating to the compute functionality of ouy app.
+
+**Compute**
+
+To support so many users, it would be very inefficient to just continue to horizontally scale the app, as we would need possibly over 100 instances of the compute microservice. Instead, we will have to implement vertical scaling by changing the EC2 instance type to a type with better CPU performance and memory (eg. changing from t2.small to t2.medium). For the horizontal scaling, increasing the maximum number of compute instances to at least 20 will still be necessary to manage peaks effectively. Horizontal scaling should also be implemented for the public-facing API server, which necessitates a new method of load balancing to handle API queries.
+
+**Load Distribution**
+
+Our current method of load balancing (using SQS) should still be effective in this scenario considering that SQS queue capacitiy is scaled automatically, however there may be some problems with task prioritisation if the compute instances fall behind in processing. In this case, changing the queue to First-In First-Out (FIFO) mode should mitigate this issue as it ensures tasks that are sent first are completed first, even if it reduces performance slightly. As mentioned in the previous section, a new method of load balancing would also be needed to effectively support the public-facing API server. The best solution for this would likely be an AWS application load balancer as it can handle HTTP requests natively.
 
 # Security
 
@@ -231,6 +240,7 @@ At a resource level a big change that can be implemented is utilising a more gre
 # Bibliography
 
 *Remove this section if not being used.*
+
 
 
 
