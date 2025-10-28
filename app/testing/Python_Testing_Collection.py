@@ -3,11 +3,11 @@ import os
 
 
 API_HOST = os.getenv("API_HOST", "localhost") # Change Public DNS when needed
-API_PORT = os.getenv("API_PORT", "3000")
+API_PORT = os.getenv("API_PORT", ":3000")
 API_VER  = os.getenv("API_VER", "v3")
 
-BASE_V3   = f"http://{API_HOST}:{API_PORT}/{API_VER}/"
-BASE_AUTH = f"http://{API_HOST}:{API_PORT}/{API_VER}/auth/"
+BASE_V3   = f"http://{API_HOST}{API_PORT}/{API_VER}/"
+BASE_AUTH = f"http://{API_HOST}{API_PORT}/{API_VER}/auth/"
 
 # Global variables to hold info when logged in to utilise script functions
 user_1_auth = None

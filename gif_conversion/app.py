@@ -11,4 +11,4 @@ if __name__ == "__main__":
     from gc_code.polling import begin_polling
     begin_polling()
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=3000)
+    uvicorn.run(app, host="0.0.0.0", port=9000)
