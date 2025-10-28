@@ -13,7 +13,7 @@ with Docker and deployed on AWS.
 
 # Application architecture
 
-<img width="975" height="641" alt="CAB432_A3_Architecture_Diagram_final" src="https://github.com/user-attachments/assets/6b81016d-c1ca-418f-bb7e-4cc7fc796873" />
+<img width="975" height="641" alt="CAB432_A3_Architecture_Diagram_final(1)" src="https://github.com/user-attachments/assets/99eb8d5b-7417-4e7a-940e-050fa85b1f6b" />
 
 *Briefly discuss the use of each service*
 
@@ -232,6 +232,7 @@ At a resource level a big change that can be implemented is utilising a more gre
 # Bibliography
 
 *Remove this section if not being used.*
+
 
 
 
