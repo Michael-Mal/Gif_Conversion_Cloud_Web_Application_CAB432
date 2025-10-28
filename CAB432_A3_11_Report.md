@@ -222,7 +222,7 @@ The application uses TLS encryption (HTTPS) through AWS ACM certificates to prot
 Internally, traffic between the ALB and EC2 instances also flows within the VPC, reducing exposure to external networks.
 
 # Sustainability
-The choices we can make while creating our application along with deployment to improve sustainability at the software level include utilising a different language that isn't as energy intensive (REFERENCE). 
+The choices we can make while creating our application along with deployment to improve sustainability at the software level include utilising a different language that isn't as energy intensive (Pereira R., 2021). 
 We have Containerised our application with Docker and deploy via a Auto Scaling Group which ensures we only run what is required avoiding idle compute energy. We have optimised our build pipelines
 by building images and then reusing them through the ECR reducing redundant compilation and deployment energy. To increase sustainability in the future we could introduce in-memory caching to reduce repeated processing for identical requests.
 The use of S3 for file storage ensures any temporary files are cleaned up automatically, preventing the retainment of unused data.
@@ -239,9 +239,8 @@ At a resource level a big change that can be implemented is utilising a more gre
 
 # Bibliography
 
-*Remove this section if not being used.*
-
-
+Pereira R., Couto M., Ribeiro F., Rua R., Cunha J., Fernandes J., Saraiva J (2021) ... Ranking programming languages by energy efficiency. Science of Computer Programming Volume 205(1).
+https://doi.org/10.1016/j.scico.2021.102609
 
 
 
