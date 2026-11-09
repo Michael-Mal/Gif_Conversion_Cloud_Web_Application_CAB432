@@ -1,4 +1,11 @@
 # CAB432_A3
+> This unit has three assessments which together form a single project implementing a web application on a cloud platform using cloud services and architecture. Each assessment represents a stage in the deployment of the application using increasingly sophisticated cloud services and architectures:
+> 
+> 1. REST API project: Implement and deploy a monolithic web application to a cloud virtual machine using a container
+> 
+> 2. Cloud Services Exercises: Use cloud services for persistence to make your application stateless, along with other cloud services to improve functionality (eg. user login services)
+>
+> 3. Cloud application: Use a microservice based cloud architecture together with cloud communication services to make your application modular and scalable
 
 ## Helpful Info
 ### How to login to AWS
