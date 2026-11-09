@@ -1,16 +1,5 @@
 # CAB432_A3
 
-## Assigned Tasks
-
-### Michael
-- [X] Microservices (3 marks)
-- [X] Load distribution (2 marks)
-- [x] Dead letter queue (2 marks)
-
-### Chris
-- [x] HTTPS (2 marks)
-- [x] Auto Scaling (3 marks)
-
 ## Helpful Info
 ### How to login to AWS
 
