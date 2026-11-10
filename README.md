@@ -14,6 +14,8 @@ This video was taken to document the application's core functionality. At this s
 
 [![Core Features Walkthrough (without cloud integration)](https://img.youtube.com/vi/9zp_Lq_9lKs/0.jpg)](https://www.youtube.com/watch?v=9zp_Lq_9lKs)
 
+To view walkthrough videos demonstrating the cloud microservices we developed and integrated into the app, please contact Michael at mjmallett23@outlook.com as they contain sensitive information by nature.
+
 [Documentation relating to the application's architecture, costs, scaling, security, and sustainability ('Project Core' and 'Project Additional' headings relate to the assignment)](https://github.com/Michael-Mal/Gif_Conversion_Cloud_Web_Application_CAB432/blob/main/CAB432_A3_11_Report.md)
 
 ## CAB432 Assignment Specifications
