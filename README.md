@@ -14,9 +14,11 @@ This video was taken to document the application's core functionality. At this s
 
 [![Core Features Walkthrough (without cloud integration)](https://img.youtube.com/vi/9zp_Lq_9lKs/0.jpg)](https://www.youtube.com/watch?v=9zp_Lq_9lKs)
 
+### Cloud Microservices Walkthrough
 To view walkthrough videos demonstrating the cloud microservices we developed and integrated into the app, please contact Michael at mjmallett23@outlook.com as they contain sensitive information by nature.
 
-[Documentation relating to the application's architecture, costs, scaling, security, and sustainability ('Project Core' and 'Project Additional' headings relate to the assignment)](https://github.com/Michael-Mal/Gif_Conversion_Cloud_Web_Application_CAB432/blob/main/CAB432_A3_11_Report.md)
+### Documentation
+[Documentation relating to the application's architecture, costs, scaling, security, and sustainability](https://github.com/Michael-Mal/Gif_Conversion_Cloud_Web_Application_CAB432/blob/main/CAB432_A3_11_Report.md) ('Project Core' and 'Project Additional' headings relate to the assignment)
 
 ## CAB432 Assignment Specifications
 > This unit has three assessments which together form a single project implementing a web application on a cloud platform using cloud services and architecture. Each assessment represents a stage in the deployment of the application using increasingly sophisticated cloud services and architectures:
