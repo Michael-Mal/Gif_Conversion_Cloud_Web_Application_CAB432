@@ -1,4 +1,14 @@
-# CAB432
+# GIF Maker API
+*Create gifs from images!*
+
+Using GIF Maker API, you can now convert your images to gifs easily and efficiently.
+Features:
+- Upload images
+- Convert images to customised gifs
+- Retrieve data related to images and gifs
+- Download gifs or upload to GIPHY
+
+## CAB432 Assignment Specifications
 > This unit has three assessments which together form a single project implementing a web application on a cloud platform using cloud services and architecture. Each assessment represents a stage in the deployment of the application using increasingly sophisticated cloud services and architectures:
 > 
 > 1. REST API project: Implement and deploy a monolithic web application to a cloud virtual machine using a container
